@@ -1,0 +1,65 @@
+﻿@model List<BestellingOverzichtViewModel>
+
+<h2>Ober Overzicht</h2>
+
+<form asp-action="OberBewerken" method="post">
+    @Html.AntiForgeryToken()
+
+    <div id="oberAccordionContainer">
+        @await Html.PartialAsync("_OberAccordionPartial", Model)
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-3">Opslaan</button>
+</form>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.7/signalr.min.js"></script>
+    <script>
+        // Helper functie om status-knoppen te initialiseren
+        function initStatusButtons() {
+            document.querySelectorAll(".btn-status").forEach(btn => {
+                const targetId = btn.dataset.target;
+                const input = document.getElementById(targetId);
+                if (!input) return;
+
+                // Active class bij huidige status
+                btn.classList.toggle("active", input.value === btn.dataset.value);
+
+                // Klik-event
+                btn.onclick = function () {
+                    input.value = this.dataset.value;
+
+                    // Toggle active class in groep
+                    const group = this.parentElement;
+                    group.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+                    this.classList.add("active");
+                };
+            });
+        }
+
+        // Init status-knoppen bij eerste render
+        document.addEventListener("DOMContentLoaded", initStatusButtons);
+
+        // SignalR verbinding
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/bestellingHub")
+            .build();
+
+        connection.on("ReceiveUpdate", async () => {
+            try {
+                const response = await fetch('@Url.Action("OberData", "Bestelling")');
+                if (!response.ok) return;
+
+                const html = await response.text();
+                document.getElementById('oberAccordionContainer').innerHTML = html;
+
+                // Herinitialiseer status-knoppen na update
+                initStatusButtons();
+            } catch (err) {
+                console.error("Error bij ophalen OberData:", err);
+            }
+        });
+
+        connection.start().catch(err => console.error(err.toString()));
+    </script>
+}

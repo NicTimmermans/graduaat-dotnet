@@ -1,0 +1,24 @@
+﻿@model TafelIndexViewModel
+@{
+    Layout = "~/Views/Tafel/_TafelLayout.cshtml";
+}
+
+@await Html.PartialAsync("~/Views/Tafel/Tafels/_TafelsTabs.cshtml", Model)
+
+<h2 class="twinkle gold-soft mb-3">
+    @(Model.ActiveSub == "Overzicht" ? "Tafels – Overzicht" : "Tafels – Grondplan")
+</h2>
+
+@if (Model.ActiveSub == "Overzicht")
+{
+    @await Html.PartialAsync("~/Views/Tafel/Tafels/TafelOverzicht.cshtml", Model.Overzicht)
+}
+else
+{
+    @await Html.PartialAsync("~/Views/Tafel/Tafels/TafelGrondplan.cshtml", Model.Grondplan)
+}
+
+@section Scripts {
+    <script src="~/js/tafel-layout.js"></script>
+}
+

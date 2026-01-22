@@ -1,0 +1,96 @@
+﻿@model MailVersturenViewModel
+@{
+    
+}
+
+<div class="container-fluid py-5">
+    <div class="mb-4">
+        <h1>Mailbeheer</h1>
+
+        <div class="mb-4 d-flex align-items-center justify-content-between">
+            <p class="text-muted">Beheer en test je beschikbare mails</p>
+
+            <a asp-action="MailsAanmaken" class="text-success fs-3">
+                <i class="bi bi-plus-square"></i>
+            </a>
+        </div>    
+    </div>
+
+    <div class="row g-4">
+        @foreach(Mail vm in Model.AvailableMails)
+        {
+            <div class="col-12 col-sm-6 col-lg-4">
+                <div class="card h-100 border border-2 shadow-sm rounded">
+                    <div class="card-header bg-white d-flex align-items-center justify-content-between">
+                        <h5 class="card-title mb-0 text-dark">@vm.Naam</h5>
+
+                        <div class="d-flex gap-2">
+                            <a asp-action="MailsAanpassen" class="text-warning" asp-route-id="@vm.Id">
+                                <i class="bi bi-pen fs-5"></i>
+                            </a>
+
+                            <a class="text-danger" onclick="showDeleteModal('@vm.Id', '@vm.Naam')">
+                                <i class="bi bi-trash fs-5"></i>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <p class="text-muted small mb-0 px-3 pt-2">
+                        <strong>Onderwerp:</strong> @vm.Onderwerp
+                    </p>
+                
+                    <div class="card-body">
+                        <div class="bg-light rounded p-3 text-break" style="max-height: 350px; overflow-y: auto;">
+                            @Html.Raw(@vm.Body.Replace("\\n", "<br/>"))
+                        </div>
+                    </div>
+
+                    <div class="card-footer bg-white border-0">
+                        <div class="d-grid gap-2">
+                            <form asp-action="Cheeky" asp-route-mailId="@vm.Id" method="post">
+                                <button type="submit" name="button" value="TestMail" class="btn btn-outline-primary w-100">
+                                    Test Mail
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Delete modal  -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0">
+            <div class="modal-header border-bottom">
+                <h5 class="modal-title fw-bold" id="nameOfMailToRemoveTitle">Mail verwijderen</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="nameOfMailToRemovebody">
+                Weet je zeker dat je volgende mail wilt verwijderen?
+            </div>
+            <div class="modal-footer border-top">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuleren</button>
+                <form asp-action="MailsVerwijderen" method="post" class="d-inline">
+                    <input type="hidden" name="id"  value="" id="deleteMailId" />
+                    <button type="submit" name="button" value="Verwijder" class="btn btn-danger">
+                        Verwijder
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showDeleteModal(mailId, mailName) {
+        document.getElementById('nameOfMailToRemovebody').innerText = `Weet je zeker dat je volgende mail wilt verwijderen?\n\n${mailName}`;
+        document.getElementById('nameOfMailToRemoveTitle').innerText = `${mailName} verwijderen`;
+        document.getElementById('deleteMailId').value = mailId;
+
+        var deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        deleteModal.show();
+    }
+</script>

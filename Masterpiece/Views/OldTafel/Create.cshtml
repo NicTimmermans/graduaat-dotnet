@@ -1,0 +1,105 @@
+﻿@model Restaurant.ViewModels.TafelCreateViewModel
+@using Microsoft.AspNetCore.Mvc.Rendering
+
+@{
+    ViewData["Title"] = "Nieuwe tafel";
+}
+
+<style>
+    .mp-center-wrapper {
+        min-height: calc(100vh - 180px); /* ruimte voor navbar + footer */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .mp-form-card {
+        background-color: #385b7e; /* zelfde feel als login-kaart */
+        border-radius: 6px;
+        padding: 2rem 2.5rem;
+        max-width: 430px;
+        width: 100%;
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+        color: #f8f9fa;
+    }
+
+        .mp-form-card h2 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .mp-form-card .form-label {
+            color: #f8f9fa;
+            font-weight: 500;
+        }
+
+        .mp-form-card .form-check-label {
+            color: #f8f9fa;
+        }
+
+        .mp-form-card .btn-primary {
+            background-color: #be9b4a;
+            border-color: #be9b4a;
+        }
+
+            .mp-form-card .btn-primary:hover {
+                background-color: #d1aa50;
+                border-color: #d1aa50;
+            }
+</style>
+
+<div class="mp-center-wrapper">
+    <div class="mp-form-card">
+        <h2 class="twinkle gold-soft mb-3">Nieuwe tafel</h2>
+
+        <form asp-action="Create" method="post">
+            @Html.AntiForgeryToken()
+
+            <div class="mb-3">
+                <label asp-for="TafelNummer" class="form-label"></label>
+                <select asp-for="TafelNummer"
+                        class="form-select"
+                        asp-items="@(new SelectList(Model.BeschikbareNummers))">
+                    <option value="">-- kies een tafelnummer --</option>
+                </select>
+                <span asp-validation-for="TafelNummer" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="MinAantalPersonen" class="form-label"></label>
+                <input asp-for="MinAantalPersonen" class="form-control" />
+                <span asp-validation-for="MinAantalPersonen" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="AantalPersonen" class="form-label"></label>
+                <input asp-for="AantalPersonen" class="form-control" />
+                <span asp-validation-for="AantalPersonen" class="text-danger"></span>
+            </div>
+
+            <div class="form-check mb-3">
+                <input asp-for="Actief" class="form-check-input" />
+                <label asp-for="Actief" class="form-check-label"></label>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="QrBarcode" class="form-label"></label>
+                <input asp-for="QrBarcode" class="form-control" />
+                <span asp-validation-for="QrBarcode" class="text-danger"></span>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Opslaan</button>
+                <a asp-action="Index"
+                   asp-route-tab="beheren"
+                   class="btn btn-secondary">
+                    Annuleren
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,25 @@
+﻿global using System.ComponentModel.DataAnnotations;
+global using System.Linq.Expressions;
+global using System.Security.Claims;
+global using System.Text.Json.Serialization;
+global using AutoMapper;
+global using Microsoft.AspNetCore.Authorization;
+global using Microsoft.AspNetCore.Identity;
+global using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+global using Microsoft.AspNetCore.Mvc;
+global using Microsoft.AspNetCore.Mvc.Rendering;
+global using Microsoft.EntityFrameworkCore;
+global using Npgsql.EntityFrameworkCore.PostgreSQL;
+global using Resend;
+global using Restaurant.Data;
+global using Restaurant.Data.Repository;
+global using Restaurant.Data.UnitOfWork;
+global using Restaurant.Models;
+global using Restaurant.Services;
+global using Restaurant.Services.MailService;
+global using Restaurant.ViewModels;
+global using Restaurant.ViewModels.Account;
+global using Restaurant.ViewModels.DashBoard;
+global using Restaurant.ViewModels.Logging;
+global using Restaurant.Services.AdminDashBoardService;
+

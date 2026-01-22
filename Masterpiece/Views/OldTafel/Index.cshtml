@@ -1,0 +1,55 @@
+﻿@model Restaurant.ViewModels.TafelListViewModel
+
+@{
+    ViewData["Title"] = "Tafels";
+    var activeTab = (ViewBag.ActiveTab as string ?? "beheren").ToLowerInvariant();
+}
+
+@if (TempData["TafelError"] is string err && !string.IsNullOrWhiteSpace(err))
+{
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        @err
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<ul class="nav nav-tabs mb-3">
+    <li class="nav-item">
+        <a class="nav-link @(activeTab == "beheren" ? "active" : "")"
+           asp-action="Index"
+           asp-route-tab="beheren"
+           asp-route-filter="@Model.ActiveFilter">
+            Tafels beheren
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(activeTab == "toewijzen" ? "active" : "")"
+           asp-action="Index"
+           asp-route-tab="toewijzen"
+           asp-route-filter="@Model.ActiveFilter">
+            Reservaties toewijzen
+        </a>
+    </li>
+</ul>
+
+@if (activeTab == "beheren")
+{
+    @await Html.PartialAsync("Beheren", Model)
+}
+else if (activeTab == "toewijzen")
+{
+    @await Html.PartialAsync("Toewijzen", Model)
+}
+else
+{
+    @await Html.PartialAsync("Beheren", Model)
+}
+@section Scripts {
+    @* Load drag JS only when we are on Beheren tab AND filter=active *@
+    @if ((ViewBag.ActiveTab as string ?? "beheren").ToLowerInvariant() == "beheren"
+       && string.Equals(Model.ActiveFilter, "active", StringComparison.OrdinalIgnoreCase)
+       && (User.IsInRole("Zaalverantwoordelijke") || User.IsInRole("Eigenaar")))
+    {
+        <script src="~/js/oldtafel-layout.js" asp-append-version="true"></script>
+    }
+}

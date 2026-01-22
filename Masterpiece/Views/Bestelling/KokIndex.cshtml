@@ -1,0 +1,55 @@
+﻿@model List<BestellingOverzichtViewModel>
+
+<h2>Kok Overzicht</h2>
+
+<form asp-action="KokBewerken" method="post">
+    @Html.AntiForgeryToken()
+
+    <div class="mt-3 mb-3">
+        <button type="submit" class="btn btn-primary btn-lg">Opslaan Alle Gerechten</button>
+    </div>
+
+    <div id="kokCardContainer" class="row">
+        @* Cards worden hier gerenderd via de partial view *@
+        @await Html.PartialAsync("_KokCardPartial", Model)
+    </div>
+</form>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.7/signalr.min.js"></script>
+    <script>
+        const kokConnection = new signalR.HubConnectionBuilder()
+            .withUrl("/bestellingHub")
+            .build();
+
+        function initStatusButtons() {
+            document.querySelectorAll(".btn-status").forEach(btn => {
+                const targetId = btn.dataset.target;
+                const input = document.getElementById(targetId);
+                if (input && input.value === btn.dataset.value) btn.classList.add("active");
+
+                btn.addEventListener("click", function () {
+                    const input = document.getElementById(this.dataset.target);
+                    if (!input) return;
+
+                    input.value = this.dataset.value;
+
+                    const group = this.parentElement;
+                    group.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+                    this.classList.add("active");
+                });
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", initStatusButtons);
+
+        kokConnection.on("ReceiveUpdate", async () => {
+            const response = await fetch('@Url.Action("KokData", "Bestelling")');
+            const html = await response.text();
+            document.getElementById('kokCardContainer').innerHTML = html;
+            initStatusButtons();
+        });
+
+        kokConnection.start().catch(err => console.error(err.toString()));
+    </script>
+}

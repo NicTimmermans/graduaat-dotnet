@@ -1,0 +1,74 @@
+﻿
+.site-header {
+    width: 100%;
+}
+
+.site-main {
+    flex: 1 0 auto;
+}
+
+.site-footer {
+    width: 100%;
+    flex-shrink: 0;
+}
+.logout-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    z-index: 1040;
+}
+
+.logout-modal {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 1050;
+    min-width: 260px;
+    max-width: 320px;
+    background: #ffffff;
+    border-radius: 0.75rem;
+    box-shadow: 0 0.7rem 1.5rem rgba(0, 0, 0, 0.35);
+    padding: 1rem 1.25rem;
+}
+
+    .logout-modal h5 {
+        font-weight: 600;
+    }
+
+    .logout-modal p {
+        font-size: 0.9rem;
+    }
+
+html, body {
+    height: 100%;
+}
+
+body {
+    background: linear-gradient( 180deg, #f8f6f3 0%, #efeae3 100% );
+    display: flex;
+    flex-direction: column;
+}
+
+main .container {
+    background-color: #ffffff;
+    border-radius: 1rem;
+    padding: 2.5rem;
+    box-shadow: 0 1rem 2.5rem rgba(0, 0, 0, 0.08);
+}
+
+html, body {
+    height: 100%;
+}
+
+body {
+    background: linear-gradient( 180deg, #f8f6f3 0%, #efeae3 100% );
+    display: flex;
+    flex-direction: column;
+}
+
+main .container {
+    background-color: #ffffff;
+    border-radius: 1rem;
+    padding: 2.5rem;
+    box-shadow: 0 1rem 2.5rem rgba(0, 0, 0, 0.08);
+}

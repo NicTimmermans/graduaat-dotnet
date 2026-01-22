@@ -1,0 +1,153 @@
+﻿@model AccountLoginViewModel
+ 
+@* @{
+    ViewData["Title"] = "Aanmelden";
+}
+ 
+<div class="d-flex justify-content-center align-items-center" style="min-height:70vh;">
+    <div class="p-4 rounded shadow-sm bg-blue-soft" style="max-width:400px; width:100%;">
+        <h2 class="text-center twinkle gold-soft mb-4">Aanmelden</h2>
+ 
+        <form id="account" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+ 
+            <div class="form-floating mb-3">
+                <input asp-for="Email" class="form-control" autocomplete="username" aria-required="true" />
+                <label asp-for="Email" class="form-label">E-mail</label>
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+ 
+            <div class="form-floating mb-4">
+                <input asp-for="Password" type="password" class="form-control" autocomplete="current-password" aria-required="true" />
+                <label asp-for="Password" class="form-label">Wachtwoord</label>
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+ 
+            <button id="login-submit" type="submit" class="btn w-100 text-white" style="background-color:var(--gold);">
+                Aanmelden
+            </button>
+        </form>
+    </div>
+</div>
+﻿@model Restaurant.ViewModels.AccountLoginViewModel *@
+
+@{
+    ViewData["Title"] = "Aanmelden";
+}
+<style>
+    .hover-bg-warning:hover {
+        background-color: #ffc107 !important;
+    }
+
+    .hover-text-dark:hover {
+        color: #222 !important;
+    }
+
+    .link-white-gold {
+        color: white !important;
+        text-decoration: none !important;
+    }
+
+        .link-white-gold:hover {
+            color: white !important;
+            text-decoration: underline !important;
+            text-decoration-color: gold !important;
+        }
+</style>
+
+<div class="d-flex justify-content-center align-items-center" style="min-height:70vh;">
+    <div class="p-4 rounded shadow-sm bg-blue-soft" style="max-width:400px; width:100%;">
+        <h2 class="text-center twinkle gold-soft mb-4">Aanmelden</h2>
+
+        <form asp-action="Login" method="post">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small"></div>
+
+            <div class="form-floating mb-3">
+                <input asp-for="Email" class="form-control" autocomplete="username" aria-required="true" />
+                <label asp-for="Email" class="form-label">E-mail</label>
+                <span asp-validation-for="Email" class="text-warning small fw-bold"></span>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input asp-for="Password" class="form-control" autocomplete="current-password" aria-required="true" />
+                <label asp-for="Password" class="form-label">Wachtwoord</label>
+                <span asp-validation-for="Password" class="text-warning small fw-bold"></span>
+            </div>
+
+            <div class="mb-1">
+                <a asp-action="ResetPasswordFormView" class="link-white-gold">
+                    Wachtwoord vergeten?
+                </a>
+            </div>
+            <div class="mb-3">
+                <a asp-controller="Account" asp-action="Create" class="link-white-gold">
+                    Nog geen account? Registreer hier.
+                </a>
+            </div>
+
+            <div>
+                <button id="login-submit" type="submit" class="btn btn-outline-warning w-100 fw-semibold">
+                    Aanmelden
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal voor 'Account niet gevonden' -->
+<div class="modal fade" id="accountNotFoundModal" tabindex="-1" aria-labelledby="accountNotFoundLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-blue-soft border-0 rounded-4 shadow">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title twinkle gold-soft" id="accountNotFoundLabel">
+                    Account niet gevonden
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Sluiten"></button>
+            </div>
+
+            <div class="modal-body text-light raleway">
+                <p class="mb-0">
+                    Het door jou ingevoerde e-mailadres is niet bekend in ons systeem.<br />
+                    Wil je opnieuw proberen in te loggen, of een nieuw account aanmaken?
+                </p>
+            </div>
+
+            <div class="modal-footer border-0 pt-0">
+                <div class="d-flex w-100 gap-2">
+                    <button type="button"
+                            class="btn btn-outline-warning w-50 fw-semibold"
+                            data-bs-dismiss="modal">
+                        Terug naar aanmelden
+                    </button>
+
+                    <a asp-controller="Account"
+                       asp-action="Create"
+                       class="btn btn-outline-warning w-50 fw-semibold">
+                        Nieuw account aanmaken
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    @* Toon modal automatisch wanneer Account niet gevonden is *@
+    @if (ViewData["AccountNotFound"] is bool found && found)
+    {
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                var modalEl = document.getElementById('accountNotFoundModal');
+                if (modalEl) {
+                    var modal = new bootstrap.Modal(modalEl);
+                    modal.show();
+                }
+            });
+        </script>
+    }
+}

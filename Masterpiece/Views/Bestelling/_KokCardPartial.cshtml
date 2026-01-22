@@ -1,0 +1,80 @@
+﻿@model List<BestellingOverzichtViewModel>
+
+@foreach (var reservatie in Model)
+{
+    foreach (var gerecht in reservatie.Gerechten)
+    {
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-light">
+                    Tafel: @(reservatie.TafelNummers.Any() ? string.Join(", ", reservatie.TafelNummers) : "-")
+                </div>
+                <div class="card-body">
+                    <h5>@gerecht.ProductNaam</h5>
+
+                    @if (!string.IsNullOrEmpty(gerecht.Opmerking))
+                    {
+                        <div class="text-muted small">Opmerking: @gerecht.Opmerking</div>
+                    }
+
+                    <input type="hidden" name="items[@gerecht.BestellingId].BestellingId" value="@gerecht.BestellingId" />
+                    <input type="hidden" name="items[@gerecht.BestellingId].StatusId" id="kokStatus_@gerecht.BestellingId" value="@gerecht.StatusId" />
+                    <input type="hidden" name="items[@gerecht.BestellingId].Opmerking" value="@gerecht.Opmerking" />
+
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                        <div>
+                            <button type="button"
+                                    class="btn @(gerecht.ProductActief ? "btn-outline-danger" : "btn-outline-success")"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalToggleProduct_@gerecht.ProductId">
+                                @(gerecht.ProductActief ? "Maak onbeschikbaar" : "Maak beschikbaar")
+                            </button>
+
+                            <div class="modal fade" id="modalToggleProduct_@gerecht.ProductId" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Bevestig wijziging</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Weet je zeker dat je @gerecht.ProductNaam @(gerecht.ProductActief ? "onbeschikbaar" : "beschikbaar") wilt maken?
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuleer</button>
+                                            <button type="submit"
+                                                    formmethod="post"
+                                                    formaction="@Url.Action("ToggleProductBeschikbaarheid", "Bestelling")"
+                                                    name="productId"
+                                                    value="@gerecht.ProductId"
+                                                    class="btn @(gerecht.ProductActief ? "btn-danger" : "btn-success")">
+                                                Bevestig
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="btn-group">
+                            <button type="button"
+                                    class="btn btn-outline-warning btn-status"
+                                    data-target="kokStatus_@gerecht.BestellingId"
+                                    data-value="1"
+                                    @(gerecht.ProductActief ? "" : "disabled")>
+                                In Behandeling
+                            </button>
+                            <button type="button"
+                                    class="btn btn-outline-success btn-status"
+                                    data-target="kokStatus_@gerecht.BestellingId"
+                                    data-value="2"
+                                    @(gerecht.ProductActief ? "" : "disabled")>
+                                Klaar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}

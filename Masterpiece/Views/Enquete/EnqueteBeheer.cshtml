@@ -1,0 +1,152 @@
+﻿@model List<EnqueteBeheerViewModel>
+
+<h2>Enquêtebeheer</h2>
+
+<div class="mb-3">
+    <label for="filterSterren">Filter op aantal sterren:</label>
+    <select id="filterSterren" class="form-select" style="width: auto; display:inline-block;">
+        <option value="">Alle</option>
+        <option value="1">1 ster</option>
+        <option value="2">2 sterren</option>
+        <option value="3">3 sterren</option>
+        <option value="4">4 sterren</option>
+        <option value="5">5 sterren</option>
+    </select>
+
+    <label for="filterZoeken" class="ms-3">Zoeken:</label>
+    <input type="text" id="filterZoeken" class="form-control" placeholder="Naam, datum of evaluatie" style="width: 300px; display:inline-block;" />
+
+    
+
+
+    @* Formulier om MinStarEnquete (minimale sterren) aan te passen *@
+    <form asp-action="UpdateEnqueteParameter" method="post" class="mb-4">
+        <label for="minStarsSelect" class="form-label fw-bold">
+            Minimale sterren voor weergave op homepagina:
+        </label>
+
+        <select id="minStarsSelect" name="minStars" class="form-select" style="width:150px; display:inline-block;">
+            <option value="1" selected="@(ViewBag.MinStarEnquete == 1 ? "selected" : null)">1 ster</option>
+            <option value="2" selected="@(ViewBag.MinStarEnquete == 2 ? "selected" : null)">2 sterren</option>
+            <option value="3" selected="@(ViewBag.MinStarEnquete == 3 ? "selected" : null)">3 sterren</option>
+            <option value="4" selected="@(ViewBag.MinStarEnquete == 4 ? "selected" : null)">4 sterren</option>
+            <option value="5" selected="@(ViewBag.MinStarEnquete == 5 ? "selected" : null)">5 sterren</option>
+        </select>
+
+
+
+        <button type="submit" class="btn btn-primary ms-2 me-2">
+            Opslaan
+        </button>
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <span class="text-success fw-bold">
+                <i class="bi bi-check-circle-fill me-1"></i>@TempData["SuccessMessage"]
+            </span>
+        }
+    </form>
+
+</div>
+
+@if (Model == null || !Model.Any())
+{
+    <div class="alert alert-info">Er zijn geen enquêtes gevonden.</div>
+}
+else
+{
+    <table class="table table-striped table-bordered" id="enqueteTable">
+        <thead>
+            <tr>
+                <th>Klant</th>
+                <th>Datum reservatie</th>
+                <th >Sterren</th>
+                <th>Evaluatie</th>
+                <th>Acties</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var r in Model)
+            {
+                <tr>
+                    <td>@r.KlantNaam</td>
+                    <td>@r.Datum.ToString("dd/MM/yyyy")</td>
+                    <td data-sterren="@r.EvaluatieAantalSterren" width="100">
+                        @for (int i = 0; i < r.EvaluatieAantalSterren; i++)
+                        {
+                            <span class="text-warning">★</span>
+                        }
+                        @for (int i = r.EvaluatieAantalSterren; i < 5; i++)
+                        {
+                            <span class="text-secondary">☆</span>
+                        }
+                    </td>
+                    <td>@r.EvaluatieOpmerkingen</td>
+                    <td>
+                        <button class="btn text-danger btn-sm"
+                                data-bs-toggle="modal"
+                                data-bs-target="#deleteEnqueteModal"
+                                data-id="@r.Id">
+                            <i class="bi bi-trash fs-5"></i>
+                        </button>
+
+                        <!-- VERWIJDER ENQUETE MODAL -->
+                        <div class="modal fade" id="deleteEnqueteModal" tabindex="-1">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content p-3 text-center">
+                                    <h5>Weet je zeker dat je deze enquête wilt verwijderen?</h5>
+                                    <form asp-action="VerwijderEnquete" method="post">
+                                        <input type="hidden" id="deleteEnqueteId" name="id" value="" />
+                                        <button type="submit" class="btn btn-danger mt-2">Ja, verwijderen</button>
+                                        <button type="button" class="btn btn-secondary mt-2" data-bs-dismiss="modal">Annuleer</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            function filterTable() {
+                var sterren = $('#filterSterren').val();
+                var zoek = $('#filterZoeken').val().toLowerCase();
+
+                $('#enqueteTable tbody tr').each(function() {
+                    var row = $(this);
+                    var rowSterren = row.find('td[data-sterren]').data('sterren');
+                    var rowTekst = row.text().toLowerCase();
+
+                    var matchSterren = !sterren || rowSterren == sterren;
+                    var matchZoek = !zoek || rowTekst.includes(zoek);
+
+                    if (matchSterren && matchZoek) {
+                        row.show();
+                    } else {
+                        row.hide();
+                    }
+                });
+            }
+
+            $('#filterSterren').on('change', filterTable);
+            $('#filterZoeken').on('keyup', filterTable);
+        });
+    </script>
+    <script>
+        const deleteEnqueteModal = document.getElementById('deleteEnqueteModal');
+
+        deleteEnqueteModal.addEventListener('show.bs.modal', function (event) {
+            let button = event.relatedTarget;
+            let id = button.getAttribute('data-id');
+
+            document.getElementById('deleteEnqueteId').value = id;
+        });
+    </script>
+
+}

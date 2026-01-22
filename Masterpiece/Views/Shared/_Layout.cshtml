@@ -1,0 +1,97 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject UserManager<CustomUser> UserManager
+@{
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+    var action = ViewContext.RouteData.Values["action"]?.ToString();
+    var isHomeIndex = controller == "Home" && action == "Index";
+    var isAccountIndex = controller == "Account" && action == "Index";
+}
+@{
+    var mainClasses = isHomeIndex
+        ? "pb-3"
+        : "py-5 my-5";
+}
+
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Restaurant</title>
+
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Twinkle+Star&family=Raleway:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+    <link rel="stylesheet" href="~/css/global.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Restaurant.styles.css" asp-append-version="true" />
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+</head>
+<body>
+    <div class="wrapper">
+        <header class="site-header">
+            @if (isHomeIndex)
+            {
+                @await Html.PartialAsync("_Navbar")
+            }
+            else
+            {
+                @await Html.PartialAsync("_StaticNavbar")
+            }
+        </header>
+
+        <main role="main" class="@mainClasses">
+            @if (isHomeIndex || isAccountIndex)
+            {
+                @RenderBody()
+            }
+            else
+            {
+                <div class="container px-4">
+                    @RenderBody()
+                </div>
+            }
+
+        </main>
+
+        <footer class="site-footer bg-blue-deep auto-margin-top">
+            <div class="container">
+                @await Html.PartialAsync("_Footer")
+            </div>
+        </footer>
+    </div>
+    
+    <div id="logout-overlay" class="logout-overlay d-none"></div>
+
+    <div id="logout-modal" class="logout-modal d-none" style="z-index: 3000;">
+        <h5 class="mb-2">Weet je het zeker?</h5>
+        <p class="mb-3">Wil je je echt afmelden?</p>
+        <div class="d-flex justify-content-end gap-2">
+            <button id="logout-cancel" type="button" class="btn btn-sm btn-outline-secondary">
+                Annuleren
+            </button>
+            <button id="logout-confirm"
+                    data-logout-url="@Url.Action("Logout", "Account")"
+                    type="button"
+                    class="btn btn-sm bg-gold text-white">
+                Afmelden
+            </button>
+
+        </div>
+    </div>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

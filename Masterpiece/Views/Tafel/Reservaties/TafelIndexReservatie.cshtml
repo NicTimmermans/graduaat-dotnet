@@ -1,0 +1,23 @@
+﻿@model TafelIndexReservatieViewModel
+@{
+    Layout = "~/Views/Tafel/_TafelLayout.cshtml";
+}
+
+@await Html.PartialAsync("~/Views/Tafel/Reservaties/_ReservatiesTabs.cshtml", Model)
+
+<h2 class="twinkle gold-soft mb-3">
+    @(Model.ActiveSub == "Overzicht" ? "Reservaties – Overzicht"
+        : "Reservaties – Toewijzen")
+</h2>
+
+@if (Model.ActiveSub == "Overzicht")
+{
+    @await Html.PartialAsync("~/Views/Tafel/Reservaties/TafelOverzichtReservatie.cshtml", Model.Overzicht)
+}
+else
+{
+    @await Html.PartialAsync("~/Views/Tafel/Reservaties/TafelToewijzenReservatie.cshtml", Model.Toewijzen)
+}
+
+@section Scripts {
+}

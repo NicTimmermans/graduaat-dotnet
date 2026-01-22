@@ -1,0 +1,91 @@
+﻿
+/* <!-- DEV comment: "Will tweak/replace in final stage. Niet volledig responsive.--> */
+.hero-section {
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    background: linear-gradient( 0deg, rgba(43,80,113,0.65) 0%, rgba(43,80,113,0.38) 36%, rgba(190,121,40,0.22) 72%, rgba(190,121,40,0.10) 100% ), url('/img/masterpiece-landing-winter.png') center / cover no-repeat fixed;
+    color: white;
+    text-shadow: 0 1px 8px rgba(0,0,0,0.5);
+}
+
+.hero-card {
+    width: 33vw;
+    max-width: 900px;
+    margin: 0 auto;
+    position: relative;
+    left: 255px;
+    z-index: 1;
+}
+
+.hero-overlay-title {
+    position: absolute;
+    bottom: 13rem;
+    left: -7rem;
+    margin: 0;
+    z-index: 10;
+}
+
+.hero-overlay-btn {
+    position: absolute;
+    bottom: 2rem;
+    left: -11rem;
+    z-index: 10;
+}
+
+.reserveer-section {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    margin-left: calc(50% - 50vw) !important;
+    margin-right: calc(50% - 50vw) !important;
+    position: relative;
+    color: #E4EFF7;
+    text-align: center;
+    background: url('/img/tree.jpg') center / cover no-repeat fixed;
+}
+
+.reserveer-overlay {
+    background: linear-gradient( to bottom, rgba(5, 11, 17, 0.75), rgba(43, 80, 113, 0.78) );
+}
+
+@media (max-width: 1270px) {
+
+    .masterpiece-main-navbar.nav-at-top .brand-dynamic img {
+        height: 180px;
+        transform: translate(100px, 100px);
+    }
+
+    .hero-card {
+        width: 90vw;
+        max-width: 700px;
+        margin: 0 auto;
+        position: relative;
+        left: 0;
+        z-index: 1;
+    }
+
+    .hero-overlay-title {
+        top: -1.5rem;
+        bottom: auto;
+        left: 50%;
+        transform: translateX(-50%);
+        margin: 0;
+        z-index: 10;
+    }
+
+    .hero-overlay-btn {
+        bottom: 1.5rem;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 10;
+    }
+}
+
+@media (max-width: 576px) {
+    .hero-overlay-title {
+        white-space: nowrap;
+        font-size: 1.1rem;
+    }
+}

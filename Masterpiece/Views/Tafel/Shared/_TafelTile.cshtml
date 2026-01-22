@@ -1,0 +1,87 @@
+﻿@model TafelTileViewModel
+
+<div class="tafel-box @Model.SizeCssClass @(Model.Actief ? "" : "tafel-box--inactive")"
+     data-id="@Model.Id">
+
+    <div class="tafel-box__inner">
+        <div class="tafel-box__number">
+            T@Model.TafelNummer
+        </div>
+
+        <div class="tafel-box__capacity">
+            @Model.CapacityLabel
+        </div>
+    </div>
+</div>
+
+<style>
+    .tafel-box {
+        position: relative;
+        border-radius: 0.6rem;
+        overflow: hidden;
+
+        /* hier komt je tafel-afbeelding */
+        /* pas dit pad aan naar waar jouw afbeelding effectief staat */
+        background-image: url('/img/tafel.png');
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        height: 180px; /* alle tafels zelfde hoogte */
+        color: #fff;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+
+        user-select: none;
+        cursor: grab;  /* blijft nice in edit mode */
+    }
+
+    .tafel-box--inactive {
+        opacity: 0.4;
+        filter: grayscale(0.6);
+    }
+
+    .tafel-box__inner {
+        background: rgba(0, 0, 0, 0.45);
+        padding: 0.35rem 0.7rem;
+        border-radius: 0.5rem;
+        text-align: center;
+    }
+
+    .tafel-box__number {
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 0.1rem;
+    }
+
+    .tafel-box__capacity {
+        font-size: 0.8rem;
+    }
+
+    /* breedte op basis van capaciteit – hetzelfde principe als je had */
+    .size-s {
+        grid-column: span 3;
+    }
+
+    .size-m {
+        grid-column: span 4;
+    }
+
+    .size-l {
+        grid-column: span 5;
+    }
+
+    .size-xl {
+        grid-column: span 6;
+    }
+
+    /* Wanneer je JS readonly-mode zet, mag de cursor “normaal” zijn */
+    .js-tafel-grid.readonly .tafel-box {
+        cursor: default;
+    }
+</style>

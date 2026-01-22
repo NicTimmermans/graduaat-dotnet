@@ -1,0 +1,157 @@
+﻿@model BestellingListViewModel
+@{
+    ViewData["Title"] = "Rekening";
+}
+<!-- wanneer niet gewenst = heel simpel: deze blok deleten :) -->
+<div class="card mb-4 shadow-sm">
+    <div class="card-body d-flex flex-column flex-md-row justify-content-between align-items-start">
+        <div>
+            <h2 class="h4 alex mb-1">
+                Tafel @Model.TafelNummer
+            </h2>
+            <p class="mb-0">
+                <strong>Klant:</strong> @Model.KlantNaam<br />
+                @if (Model.ReservatieDatum.HasValue)
+                {
+                    <strong>Reservatie:</strong>
+                    @Model.ReservatieDatum.Value.ToString("dd/MM/yyyy HH:mm")
+                    <br />
+                }
+            </p>
+        </div>
+
+        @if (Model.VolgendeReservatieDatum.HasValue)
+        {
+            <div class="text-end mt-3 mt-md-0">
+                <span class="small text-muted">
+                    Volgende reservatie op deze tafel:
+                    @Model.VolgendeReservatieDatum.Value.ToString("dd/MM/yyyy HH:mm")
+                </span>
+            </div>
+        }
+    </div>
+</div>
+<!-- wanneer niet gewenst = heel simpel: deze blok deleten :) -->
+
+<h2>Uw bestelling</h2>
+
+@if (TempData["PaymentError"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["PaymentError"]
+    </div>
+}
+@if (TempData["MailWarning"] != null)
+{
+    <div class="alert alert-warning">
+        @TempData["MailWarning"]
+    </div>
+}
+
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Product</th>
+            <th>Aantal</th>
+            <th>Totaal</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Bestellingen)
+        {
+                <tr>
+                    <td>@item.ProductNaam</td>
+                    <td>
+                        <form asp-action="UpdateRekening" method="post" class="d-flex">
+                            <input type="hidden" name="Id" value="@item.Id" />
+                            <input type="number" name="Aantal" value="@item.Aantal" min="1" class="form-control form-control-sm me-2" style="width:70px;" />
+                            <button type="submit" class="btn btn-primary btn-sm">Wijzigen</button>
+                        </form>
+                    </td>
+                    <td>@item.LijnTotaal.ToString("0.00") €</td>
+                    <td>
+                        <form asp-action="RemoveRekening" method="post">
+                            <input type="hidden" name="id" value="@item.Id" />
+                            <button type="submit" class="btn btn-danger btn-sm">Verwijderen</button>
+                        </form>
+                    </td>
+                </tr> 
+        }
+    </tbody>
+</table>
+
+<h3>Totaal: @Model.Totaal.ToString("0.00") €</h3>
+
+<div class="d-flex justify-content-between mt-3">
+    <a href="@Url.Action("Afrekenen", "OldTafel")" class="btn btn-secondary align-self-start">
+        Terug naar Afrekenen
+    </a>
+
+    <form id="paymentForm" method="post" asp-action="Betalen">
+        <input type="hidden" name="reservatieId" value="@Model.ReservatieId" />
+        <div class="mb-3">
+            <label for="Betaalmethode" class="form-label">Betaalmethode</label>
+            <select class="form-select" id="Betaalmethode" name="Betaalmethode" required onchange="toggleCashInput()">
+                <option value="">-- Kies een betaalmethode --</option>
+                <option value="Cash">Cash</option>
+                <option value="Payconiq">Payconiq</option>
+            </select>
+        </div>
+
+        <div class="mb-3" id="cashConfirmation" style="display:none;">
+            <label for="OntvangenBedrag" class="form-label">Ontvangen bedrag (€)</label>
+            <input type="number" step="0.01" min="0" class="form-control" id="OntvangenBedrag" name="ontvangenBedrag" />
+        </div>
+
+        <button type="button" class="btn btn-success" onclick="handlePayment()">Betaal</button>
+    </form>
+</div>
+
+<!-- Payconiq Modal -->
+<div class="modal fade" id="payconiqModal" tabindex="-1" aria-labelledby="payconiqModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="payconiqModalLabel">Scan QR Code met Payconiq</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <div style="width:200px; height:200px; background-color:#eee; display:inline-block; line-height:200px;">
+                    QR Code Placeholder
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" onclick="markPaymentComplete()">Betaling Voltooid</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleCashInput() {
+        const betaalMethode = document.getElementById("Betaalmethode").value;
+        const cashDiv = document.getElementById("cashConfirmation");
+        cashDiv.style.display = betaalMethode === "Cash" ? "block" : "none";
+    }
+
+    function handlePayment() {
+        const betaalMethode = document.getElementById("Betaalmethode").value;
+
+        if(betaalMethode === "Payconiq") {
+            
+            const payconiqModal = new bootstrap.Modal(document.getElementById('payconiqModal'));
+            payconiqModal.show();
+        } else if(betaalMethode === "Cash") {
+            
+            document.getElementById("paymentForm").submit();
+        } else {
+            alert("Kies eerst een betaalmethode.");
+        }
+    }
+
+    function markPaymentComplete() {
+        
+        document.getElementById("paymentForm").submit();
+    }
+</script>

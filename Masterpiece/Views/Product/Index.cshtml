@@ -1,0 +1,146 @@
+﻿@model Dictionary<ProductListViewModel, bool>
+@{
+    ViewData["Title"] = "Gerechten";
+}
+@if (User.IsInRole("Ober"))
+{
+    <h1>Drank</h1>
+}
+else if (User.IsInRole("Kok"))
+{
+    <h1>Gerechten</h1>
+}
+else
+{
+    <h1>Producten</h1>
+}
+<div class="my-4">
+    <a asp-action="Create" class="text-success fs-3">
+        <i class="bi bi-plus-square"></i>
+    </a>
+</div>
+<table class="table">
+    <thead>
+        <tr>
+            <th class="col)">
+                @Html.DisplayNameFor(v => v.Keys.First().Naam)
+            </th>
+            <th class="col)">
+                @Html.DisplayNameFor(v => v.Keys.First().Beschrijving)
+            </th>
+            <th class="col)">
+                Allergenen info
+            </th>
+            <th class="col)">
+                @Html.DisplayNameFor(v => v.Keys.First().Actief)
+            </th>
+            <th class="col)">
+                Suggestie
+            </th>
+            <th class="col)">
+                @Html.DisplayNameFor(v => v.Keys.First().Categorie)
+            </th>
+            <th class="col)">
+                @Html.DisplayNameFor(v => v.Keys.First().Prijs)
+            </th>
+            <th colspan="2" class="text-center">Acties</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (Categorie categorie in ViewBag.Categorien)
+        {
+            List<ProductListViewModel> productenInCategorie = Model.Keys.Where(p => p.Categorie == categorie.Naam).ToList();
+            @if (productenInCategorie.Any())
+            {
+                <tr>
+                    <td>
+                        <h2 class="mt-3">
+                            @categorie.Naam[0]@categorie.Naam.ToLower().Substring(1)
+                        </h2>
+                    </td>
+                </tr>
+            }
+            @foreach (var productListViewModel in productenInCategorie)
+            {
+                <tr class="border border-2 py-1">
+                    <td class="col ps-2">
+                        @Html.DisplayFor(modelitem => productListViewModel.Naam)
+                    </td>
+                    <td class="col ps-2">
+                        @Html.DisplayFor(modelitem => productListViewModel.Beschrijving)
+                    </td>
+                    <td class="col ps-2">
+                        @Html.DisplayFor(modelitem => productListViewModel.AllergenenInfo)
+                    </td>
+                    <td class="col ps-2">
+                        <form asp-action="ToggleActief" method="post" class="d-inline">
+                            <input type="hidden" name="id" value="@productListViewModel.Id" />
+                            <input type="checkbox" onchange="this.form.submit()" @(productListViewModel.Actief ? "checked" : "") />
+                        </form>
+                    </td>
+                    <td class="col ps-2">
+                        <form asp-action="ToggleSuggestie" method="post" class="d-inline">
+                            <input type="hidden" name="id" value="@productListViewModel.Id" />
+                            <input type="checkbox" onchange="this.form.submit()" @(productListViewModel.IsSuggestie ? "checked" : "") />
+                        </form>
+                    </td>
+                    <td class="col ps-2">
+                        @Html.DisplayFor(modelitem => productListViewModel.Categorie)
+                    </td>
+                    <td class="col ps-2">
+                        @Html.DisplayFor(modelitem => productListViewModel.Prijs)
+                    </td>
+                    <td class="col ps-4">
+                        <a asp-action="Edit" class="text-warning" asp-route-id="@productListViewModel.Id">
+                            <i class="bi bi-pen fs-5"></i>
+                        </a>
+                    </td>
+                    <td class="col ps-4">
+                        <a class="text-danger" onclick="showDeleteModal('@productListViewModel.Id', '@productListViewModel.Naam.Replace('\'', ' ')', '@Model[productListViewModel]')">
+                            <i class="bi bi-trash fs-5"></i>
+                        </a>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+<!-- Delete modal  -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0">
+            <div class="modal-header border-bottom">
+                <h5 class="modal-title fw-bold" id="nameOfProductToRemoveTitle">Product verwijderen</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="nameOfProductToRemoveBody">
+                Weet je zeker dat je dit product wilt verwijderen?
+            </div>
+            <div class="modal-footer border-top">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuleren</button>
+                <form asp-action="Delete" method="post" class="d-inline">
+                    <input type="hidden" name="id" value="" id="deleteProductId" />
+                    <button type="submit" name="button" value="Verwijder" class="btn btn-danger">
+                        Verwijder
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showDeleteModal(productId, productNaam, existsInBestellingen) {
+        if (existsInBestellingen === 'True') {
+            document.getElementById('nameOfProductToRemoveBody').innerText = 'Weet je zeker dat je dit product wilt verwijderen?\n\nEr zijn nog bestellingen met dit product!'
+        } else {
+            document.getElementById('nameOfProductToRemoveBody').innerText = `Weet je zeker dat je dit product wilt verwijderen?\n\n${productNaam}`
+		}
+        document.getElementById('nameOfProductToRemoveTitle').innerText = `${productNaam} verwijderen`;
+        document.getElementById('deleteProductId').value = productId;
+
+        var deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        deleteModal.show();
+    }
+</script>

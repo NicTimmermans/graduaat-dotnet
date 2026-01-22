@@ -1,0 +1,45 @@
+name: Sync Classroom Repo to Personal Repo
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Push to personal repo
+        env:
+          PERSONAL_TOKEN: ${{ secrets.PERSONAL_REPO_TOKEN }}
+        run: |
+          git remote add personal https://x-access-token:${PERSONAL_TOKEN}@github.com/<JelleSels-bit>/<Masterpiece>.git
+          git push personal main --force
+name: Mirror to personal repo
+
+on:
+  push:
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - uses: pixta-dev/repository-mirroring-action@v1
+        with:
+          target_repo_url: git@github.com:JelleSels-bit/Masterpiece.git
+          ssh_private_key: ${{ secrets.TARGET_REPO_SSH_KEY }}
+
+

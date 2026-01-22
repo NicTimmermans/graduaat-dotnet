@@ -1,0 +1,167 @@
+﻿@using Restaurant.ViewModels.Overzicht
+@model OverzichtDashboardViewModel
+
+@{
+    ViewData["Title"] = "Overzichten";
+    var f = Model.Filter;
+}
+
+<h2 class="twinkle gold-soft mb-3">Overzichten genereren</h2>
+
+@if (!string.IsNullOrWhiteSpace(f.ErrorMessage))
+{
+    <div class="alert alert-danger">@f.ErrorMessage</div>
+}
+else if (!string.IsNullOrWhiteSpace(f.InfoMessage))
+{
+    <div class="alert alert-info">@f.InfoMessage</div>
+}
+
+<form method="get" class="row g-2 align-items-end mb-3">
+    <div class="col-auto">
+        <label class="form-label">Type</label>
+        <select class="form-select" name="type">
+            <option value="Reservaties" selected="@(f.Type==OverzichtType.Reservaties)">Reservaties</option>
+            <option value="Omzet" selected="@(f.Type==OverzichtType.Omzet)">Omzet</option>
+            <option value="Feedback" selected="@(f.Type==OverzichtType.Feedback)">Feedback</option>
+        </select>
+    </div>
+
+    <div class="col-auto">
+        <label class="form-label">Periode</label>
+        <select class="form-select" name="periode">
+            <option value="Dag" selected="@(f.Periode==OverzichtPeriode.Dag)">Dag</option>
+            <option value="Week" selected="@(f.Periode==OverzichtPeriode.Week)">Week</option>
+            <option value="Maand" selected="@(f.Periode==OverzichtPeriode.Maand)">Maand</option>
+        </select>
+    </div>
+
+    <div class="col-auto">
+        <label class="form-label">Startdatum</label>
+        <input class="form-control" type="date" name="startDatum" value="@f.StartDatum.ToString("yyyy-MM-dd")" />
+    </div>
+
+    <div class="col-auto">
+        <button class="btn btn-primary" type="submit">Genereer</button>
+    </div>
+
+    <div class="col-auto ms-auto d-flex gap-2">
+        <a class="btn btn-outline-secondary"
+           asp-action="Pdf"
+           asp-route-type="@f.Type"
+           asp-route-periode="@f.Periode"
+           asp-route-startDatum="@f.StartDatum.ToString("yyyy-MM-dd")">
+            Download PDF
+        </a>
+
+        <a class="btn btn-outline-secondary"
+           asp-action="Csv"
+           asp-route-type="@f.Type"
+           asp-route-periode="@f.Periode"
+           asp-route-startDatum="@f.StartDatum.ToString("yyyy-MM-dd")">
+            Export CSV
+        </a>
+    </div>
+</form>
+
+<div class="mb-2 text-muted">
+    Periode: <strong>@f.Van.ToString("dd/MM/yyyy")</strong> — <strong>@f.Tot.ToString("dd/MM/yyyy")</strong>
+</div>
+
+@if (f.Type == OverzichtType.Reservaties)
+{
+    <div class="card mb-3">
+        <div class="card-body">
+            <div><strong>Totaal reservaties:</strong> @Model.Reservaties.TotaalReservaties</div>
+            <div><strong>Totaal personen:</strong> @Model.Reservaties.TotaalPersonen</div>
+        </div>
+    </div>
+
+    <table class="table table-striped align-middle">
+        <thead>
+            <tr>
+                <th>Datum</th>
+                <th>Tijdslot</th>
+                <th>Klant</th>
+                <th>Aantal</th>
+                <th>Tafels</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var r in Model.Reservaties.Rows)
+            {
+                <tr>
+                    <td>@r.Datum.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>@r.TijdslotNaam</td>
+                    <td>@r.KlantNaam</td>
+                    <td>@r.AantalPersonen</td>
+                    <td>@r.Tafels</td>
+                    <td>@(r.IsAanwezig ? "Bezet" : "Gereserveerd") / @(r.Betaald ? "Betaald" : "Open")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else if (f.Type == OverzichtType.Omzet)
+{
+    <div class="card mb-3">
+        <div class="card-body">
+            <div><strong>Totaal omzet:</strong> @Model.Omzet.TotaalOmzet €</div>
+            <div><strong>Aantal records:</strong> @Model.Omzet.AantalBestellingen</div>
+        </div>
+    </div>
+
+    <table class="table table-striped align-middle">
+        <thead>
+            <tr>
+                <th>Datum</th>
+                <th>Reservatie</th>
+                <th>Tafels</th>
+                <th class="text-end">Bedrag</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var o in Model.Omzet.Rows)
+            {
+                <tr>
+                    <td>@o.Datum.ToString("dd/MM/yyyy")</td>
+                    <td>#@o.ReservatieId</td>
+                    <td>@o.Tafels</td>
+                    <td class="text-end">@o.Bedrag €</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <div class="card mb-3">
+        <div class="card-body">
+            <div><strong>Aantal feedbacks:</strong> @Model.Feedback.AantalFeedbacks</div>
+            <div><strong>Gemiddelde score:</strong> @Model.Feedback.GemiddeldeScore.ToString("0.00")</div>
+        </div>
+    </div>
+
+    <table class="table table-striped align-middle">
+        <thead>
+            <tr>
+                <th>Datum</th>
+                <th>Klant</th>
+                <th>Sterren</th>
+                <th>Opmerking</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var x in Model.Feedback.Rows)
+            {
+                <tr>
+                    <td>@x.Datum.ToString("dd/MM/yyyy")</td>
+                    <td>@x.KlantNaam</td>
+                    <td>@x.Sterren</td>
+                    <td>@x.Opmerking</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

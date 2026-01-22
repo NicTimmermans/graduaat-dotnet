@@ -1,0 +1,234 @@
+﻿@model ReservatieViewModel
+
+<h2 class="text-center mb-4">Maak een reservatie</h2>
+
+<div class="d-flex justify-content-center align-items-center" style="min-height: 60vh;">
+    <!-- ================= STEP 1: AANTAL PERSONEN ================= -->
+    <div class="step-card" id="stepAantal">
+        <div class="card p-4 shadow" style="width: 400px;">
+            <h5 class="card-title text-center mb-3">Kies het aantal personen</h5>
+            <form id="aantalForm">
+                <input asp-for="AantalPersonen" class="form-control mb-2" type="number" id="aantalPersonen" min="1" max="24" step="1" placeholder="Aantal personen" />
+                <span id="aantalError" class="text-danger"></span>
+                <button type="submit" class="btn btn-primary w-100 mt-2" id="btnKiesDatum">
+                    <span id="btnText">Kies datum</span>
+                    <span id="btnSpinner" class="spinner-border spinner-border-sm ms-2 d-none"></span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================= STEP 2: DATUM ================= -->
+    <div class="step-card d-none" id="stepDatum">
+        <div class="card p-4 shadow" style="width: 400px;">
+            <h5 class="card-title text-center mb-3">Kies een datum</h5>
+            <input type="text" id="datumPicker" class="form-control mb-2" placeholder="Kies een datum" />
+            <button type="button" id="btnVolgendeTijdslot" class="btn btn-success w-100 mt-2" disabled>Volgende: Kies tijdslot</button>
+            <button type="button" class="btn btn-secondary w-100 mt-2" id="btnBackToAantal">Terug</button>
+        </div>
+    </div>
+
+    <!-- ================= STEP 3: TIJDSLOT ================= -->
+    <div class="step-card d-none" id="stepTijdslot">
+        <div class="card p-4 shadow" style="width: 400px;">
+            <h5 class="card-title text-center mb-3">Kies een tijdslot</h5>
+            <div id="tijdslotContainer"></div>
+            <button type="button" class="btn btn-success w-100 mt-2" id="btnOpenSamenvatting" disabled>Volgende: Samenvatting</button>
+            <button type="button" class="btn btn-secondary w-100 mt-2" id="btnBackToDatum">Terug</button>
+        </div>
+    </div>
+
+    <!-- ================= STEP 4: SAMENVATTING ================= -->
+    <div class="step-card d-none" id="stepSamenvatting">
+        <div class="card p-4 shadow" style="width: 400px;">
+            <h5 class="card-title text-center mb-3">Bevestig je reservatie</h5>
+
+            <p>Aantal personen: <span id="samenvattingAantal"></span></p>
+            <p>Datum: <span id="samenvattingDatum"></span></p>
+            <p>Tijdslot: <span id="samenvattingTijdslot"></span></p>
+
+            <label for="opmerkingInput">Opmerking</label>
+            <input type="text" id="opmerkingInput" class="form-control mb-3" />
+
+            <form asp-action="Bevestigen" method="post" id="samenvattingForm">
+                <input type="hidden" asp-for="AantalPersonen" id="formAantalPersonen" />
+                <input type="hidden" asp-for="GekozenDatum" id="formGekozenDatum" />
+                <input type="hidden" asp-for="GekozenTijdslotId" id="formGekozenTijdslotId" />
+                <input type="hidden" asp-for="Opmerking" id="formOpmerking" />
+
+                <button type="submit" class="btn btn-success w-100" id="btnBevestigen">
+                    <span id="btnBevestigenText">Reservering bevestigen</span>
+                    <span id="btnBevestigenSpinner" class="spinner-border spinner-border-sm ms-2 d-none" role="status"></span>
+                </button>
+            </form>
+
+            @if (!string.IsNullOrEmpty(Model.Foutmelding))
+            {
+                <span class="text-danger">@Model.Foutmelding</span>
+            }
+
+            <button type="button" class="btn btn-secondary w-100 mt-2" id="btnBackToTijdslot">Terug</button>
+        </div>
+    </div>
+
+    <!-- ================= STEP 5: BEDANKT ================= -->
+    <div class="step-card d-none" id="stepBedankt">
+        <div class="card p-4 shadow text-center" style="width: 400px;">
+            <h4>Bedankt om te reserveren!</h4>
+            <p>Je ontvangt binnenkort een bevestigingsmail.</p>
+            <a href="/" class="btn btn-primary mt-3">Ga terug naar de homepage</a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+    <script>
+        // ==================== Globale functie ====================
+        function showStep(stepId) {
+            document.querySelectorAll(".step-card").forEach(card => card.classList.add("d-none"));
+            document.getElementById(stepId).classList.remove("d-none");
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const aantalInput = document.getElementById("aantalPersonen");
+            const btnKiesDatum = document.getElementById("btnKiesDatum");
+            const btnText = document.getElementById("btnText");
+            const btnSpinner = document.getElementById("btnSpinner");
+
+            const datumPicker = document.getElementById("datumPicker");
+            const btnVolgendeTijdslot = document.getElementById("btnVolgendeTijdslot");
+
+            const tijdslotContainer = document.getElementById("tijdslotContainer");
+            const btnOpenSamenvatting = document.getElementById("btnOpenSamenvatting");
+
+            const samenvattingForm = document.getElementById("samenvattingForm");
+            const btnBevestigenText = document.getElementById("btnBevestigenText");
+            const btnBevestigenSpinner = document.getElementById("btnBevestigenSpinner");
+
+            // ================= STEP 1 → STEP 2 =================
+            btnKiesDatum.addEventListener("click", function(e) {
+                e.preventDefault();
+                const aantal = parseInt(aantalInput.value);
+                const errorSpan = document.getElementById("aantalError");
+                errorSpan.textContent = "";
+
+                if (isNaN(aantal) || aantal < 1 || aantal > 24) {
+                    errorSpan.textContent = "Je kan maar reserveren tussen de 1 en 24 personen.";
+                    return;
+                }
+
+                btnText.textContent = "Beschikbare datums worden opgehaald";
+                btnSpinner.classList.remove("d-none");
+
+                fetch(`/Reservatie/GetBeschikbareData?aantalPersonen=${aantal}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (!data || data.length === 0) {
+                            errorSpan.textContent = "Geen beschikbare datums voor dit aantal personen.";
+                            btnText.textContent = "Kies datum";
+                            btnSpinner.classList.add("d-none");
+                            return;
+                        }
+
+                        flatpickr("#datumPicker", {
+                            dateFormat: "Y-m-d",
+                            enable: data,
+                            onChange: function(selectedDates, dateStr) {
+                                document.getElementById("formGekozenDatum").value = dateStr;
+                                btnVolgendeTijdslot.disabled = false;
+                            }
+                        });
+
+                        btnText.textContent = "Kies datum";
+                        btnSpinner.classList.add("d-none");
+                        showStep("stepDatum");
+                    })
+                    .catch(() => {
+                        errorSpan.textContent = "Er is iets misgegaan bij ophalen van datums.";
+                        btnText.textContent = "Kies datum";
+                        btnSpinner.classList.add("d-none");
+                    });
+            });
+
+            document.getElementById("btnBackToAantal").addEventListener("click", () => showStep("stepAantal"));
+
+            // ================= STEP 2 → STEP 3 =================
+            btnVolgendeTijdslot.addEventListener("click", function () {
+                const gekozenDatum = document.getElementById("formGekozenDatum").value;
+                const aantal = parseInt(aantalInput.value);
+
+                fetch(`/Reservatie/GetTijdsloten?datum=${gekozenDatum}&aantalPersonen=${aantal}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        tijdslotContainer.innerHTML = "";
+                        data.forEach(ts => {
+                            const div = document.createElement("div");
+                            div.className = "form-check mb-2";
+
+                            const input = document.createElement("input");
+                            input.type = "radio";
+                            input.name = "GekozenTijdslotId";
+                            input.value = ts.tijdslotId;
+                            input.disabled = !ts.isBeschikbaar;
+                            input.className = "form-check-input";
+                            input.id = `ts${ts.tijdslotId}`;
+
+                            const label = document.createElement("label");
+                            label.className = "form-check-label";
+                            label.setAttribute("for", input.id);
+                            label.innerHTML = `${ts.naam} <span class="d-block">(${ts.beschikbarePlaatsen} plaatsen beschikbaar)</span>`;
+
+                            div.appendChild(input);
+                            div.appendChild(label);
+                            tijdslotContainer.appendChild(div);
+                        });
+                        showStep("stepTijdslot");
+                    });
+            });
+
+            document.getElementById("btnBackToDatum").addEventListener("click", () => showStep("stepDatum"));
+
+            // ================= STEP 3 → STEP 4 =================
+            tijdslotContainer.addEventListener("change", e => {
+                if (e.target.name === "GekozenTijdslotId") btnOpenSamenvatting.disabled = false;
+            });
+
+            btnOpenSamenvatting.addEventListener("click", function() {
+                const gekozenTijdslot = document.querySelector('input[name="GekozenTijdslotId"]:checked');
+                if (!gekozenTijdslot) return;
+
+                document.getElementById("samenvattingAantal").innerText = aantalInput.value;
+                document.getElementById("samenvattingDatum").innerText = datumPicker.value;
+                document.getElementById("samenvattingTijdslot").innerText = gekozenTijdslot.nextSibling.textContent.trim();
+
+                document.getElementById("formAantalPersonen").value = aantalInput.value;
+                document.getElementById("formGekozenTijdslotId").value = gekozenTijdslot.value;
+
+                showStep("stepSamenvatting");
+            });
+
+            document.getElementById("btnBackToTijdslot").addEventListener("click", () => showStep("stepTijdslot"));
+
+            // ================= STEP 4 → STEP 5 =================
+            samenvattingForm.addEventListener("submit", function() {
+                // Laat normale submit doorgaan, spinner tonen
+                document.getElementById("formOpmerking").value = document.getElementById("opmerkingInput").value;
+
+                btnBevestigenText.textContent = "Uw reservatie is in behandeling";
+                btnBevestigenSpinner.classList.remove("d-none");
+            });
+
+            // ================= STEP 5: Bedankt bij reload =================
+            @if (Model.ReserveringVoltooid)
+            {
+                    <text>
+                    showStep("stepBedankt");
+                    </text>
+            }
+        });
+    </script>
+}
+

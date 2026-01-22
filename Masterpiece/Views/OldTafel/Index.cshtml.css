@@ -1,0 +1,98 @@
+﻿/* Grid container: alle tafels in gelijke blokken */
+.floor-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1.5rem;
+}
+
+/* Basis tafelkaart */
+.tafel-card {
+    border-radius: 16px;
+    padding: 0.75rem 1rem 0.9rem;
+    color: #fff;
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+/* Status-kleuren (vergelijkbaar met je referentie-screenshot) */
+.tafel-card--free {
+    background-color: #1e8f4f; /* groen */
+}
+
+.tafel-card--reserved {
+    background-color: #e59f1d; /* oranje */
+}
+
+.tafel-card--busy {
+    background-color: #d6453d; /* rood */
+}
+
+.tafel-card__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.35rem;
+}
+
+.tafel-card__number {
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.tafel-card__status {
+    font-size: 0.8rem;
+    background: rgba(255,255,255,0.18);
+    padding: 0.1rem 0.4rem;
+    border-radius: 999px;
+}
+
+.tafel-card__body {
+    font-size: 0.85rem;
+}
+
+.tafel-card__line {
+    line-height: 1.2;
+}
+
+.tafel-card__line--muted {
+    opacity: 0.8;
+}
+
+.tafel-card__amount {
+    margin-top: 0.35rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+/* Iconen rechts onder zoals in je schets */
+.tafel-card__actions {
+    margin-top: 0.5rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.4rem;
+}
+
+.tafel-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.tafel-icon--primary {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.tafel-icon--danger {
+    background-color: #dc3545;
+    color: #fff;
+}

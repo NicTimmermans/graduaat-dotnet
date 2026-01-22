@@ -1,0 +1,145 @@
+﻿@model ParameterListViewModel
+@{
+    ViewData["Title"] = "Parameter Beheren";
+}
+<h2 class="mb-4">Parameters beheren</h2>
+
+@if (Model.FeedbackMessage is not null)
+{
+    <div class="alert @(Model.IsError ? "alert-danger" : "alert-success")">
+        @Model.FeedbackMessage
+    </div>
+}
+
+<table class="table table-striped align-middle">
+    <thead>
+        <tr>
+            <th>Naam</th>
+            <th>Waarde</th>
+            <th class="text-center">Acties</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var p in Model.Parameters)
+        {
+            <tr>
+                <td>@p.Naam</td>
+                <td>@p.Waarde</td>
+                <td class="text-center">
+
+                    <!-- EDIT -->
+                    <button class="btn btn-sm text-warning me-1 edit-btn"
+                            data-id="@p.Id"
+                            data-naam="@p.Naam"
+                            data-waarde="@p.Waarde"
+                            data-bs-toggle="modal"
+                            data-bs-target="#editModal">
+                        <i class="bi bi-pen fs-5"></i>
+                    </button>
+
+                    <!-- DELETE -->
+                    <button class="btn btn-sm text-danger delete-btn"
+                            data-id="@p.Id"
+                            data-bs-toggle="modal"
+                            data-bs-target="#deleteModal">
+                        <i class="bi bi-trash fs-5"></i>
+                    </button>
+
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+<hr />
+
+<h4 class="mt-4">Nieuwe parameter toevoegen</h4>
+
+<form asp-action="Create" class="m-3">
+    <div class="row g-3">
+        <div class="col-md-5">
+            <label asp-for="CreateParameter.Naam" class="form-label fw-bold"></label>
+            <input asp-for="CreateParameter.Naam" class="form-control" />
+        </div>
+
+        <div class="col-md-5">
+            <label asp-for="CreateParameter.Waarde" class="form-label fw-bold"></label>
+            <input asp-for="CreateParameter.Waarde" class="form-control" />
+        </div>
+
+        <div class="col-md-2 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary w-100">Toevoegen</button>
+        </div>
+    </div>
+</form>
+
+
+<!-- EDIT MODAL -->
+<div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered mt-5">
+        <div class="modal-content">
+            <form asp-action="Edit">
+                <div class="modal-header">
+                    <h5 class="modal-title">Parameter bewerken</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <input type="hidden" asp-for="EditParameter.Id" id="edit-id" />
+
+                    <div class="mb-3">
+                        <label asp-for="EditParameter.Naam" class="form-label fw-bold"></label>
+                        <input asp-for="EditParameter.Naam" class="form-control" id="edit-naam" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="EditParameter.Waarde" class="form-label fw-bold"></label>
+                        <input asp-for="EditParameter.Waarde" class="form-control" id="edit-waarde" />
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Opslaan</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuleren</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<!-- DELETE MODAL -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content p-3 text-center">
+            <h5 class="mb-3">Weet je zeker dat je deze parameter wilt verwijderen?</h5>
+
+            <form asp-action="Delete" method="post">
+                <input type="hidden" id="deleteId" name="id" />
+
+                <button type="submit" class="btn btn-danger mt-2 w-100">Ja, verwijderen</button>
+                <button type="button" class="btn btn-secondary mt-2 w-100" data-bs-dismiss="modal">Annuleer</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    // Fill edit modal fields
+    document.querySelectorAll('.edit-btn').forEach(button => {
+        button.addEventListener('click', () => {
+            document.getElementById('edit-id').value = button.dataset.id;
+            document.getElementById('edit-naam').value = button.dataset.naam;
+            document.getElementById('edit-waarde').value = button.dataset.waarde;
+        });
+    });
+
+    // Fill delete modal with selected id
+    document.querySelectorAll('.delete-btn').forEach(button => {
+        button.addEventListener('click', () => {
+            document.getElementById('deleteId').value = button.dataset.id;
+        });
+    });
+</script>

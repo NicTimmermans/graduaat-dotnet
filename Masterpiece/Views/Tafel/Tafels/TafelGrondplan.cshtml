@@ -1,0 +1,81 @@
+﻿@model TafelGrondplanViewModel
+
+<div class="tafel-grid js-tafel-grid readonly">
+    @foreach (var tile in Model.Tafels
+    .OrderBy(t => t.DisplayOrder)
+    .ThenBy(t => t.TafelNummer))
+    {
+        @await Html.PartialAsync("~/Views/Tafel/Shared/_TafelTile.cshtml", tile)
+    }
+</div>
+
+@if (User.IsInRole("Zaalverantwoordelijke") || User.IsInRole("Eigenaar"))
+{
+    <div class="text-center mt-3 mb-4">
+        <button type="button"
+                id="editModeBtn"
+                class="btn btn-sm btn-outline-warning me-2">
+            Edit layout
+        </button>
+
+        <button type="button"
+                id="saveLayoutBtn"
+                class="btn btn-sm btn-success me-2"
+                style="display:none;">
+            Save changes
+        </button>
+
+        <button type="button"
+                id="resetLayoutBtn"
+                class="btn btn-sm btn-outline-light"
+                style="display:none;">
+            Reset to original order
+        </button>
+    </div>
+}
+
+<style>
+    .tafel-grid {
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        gap: 1.75rem;
+        padding: 1rem 0 2rem;
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+
+    .tafel-box {
+        background: #0d6efd;
+        color: white;
+        border-radius: 0.5rem;
+        font-size: 0.85rem;
+        text-align: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-weight: 600;
+        height: 180px;
+        user-select: none;
+    }
+
+    .size-s {
+        grid-column: span 3;
+    }
+
+    .size-m {
+        grid-column: span 4;
+    }
+
+    .size-l {
+        grid-column: span 5;
+    }
+
+    .size-xl {
+        grid-column: span 6;
+    }
+
+    .tafel-grid.readonly .tafel-box {
+        cursor: default;
+        opacity: 0.95;
+    }
+</style>

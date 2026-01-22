@@ -1,0 +1,196 @@
+﻿@model AdminDashBoardViewModel
+@{
+    ViewData["Title"] = "AdminDashboard";
+}
+
+<div class="my-5"></div>
+
+<div class="container mt-5">
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 text-center">
+
+        @if (User.IsInRole("Eigenaar"))
+        {
+            @foreach (var item in Model.AdminData)
+            {
+                <Div class="col d-grid"> 
+                    <a class="btn raleway bg-blue-deep border-gold gold p-4 border border-3 rounded shadow-sm fs-4 fw-bold h-100" 
+                       asp-area="" 
+                       asp-controller="@item.Controller" 
+                       asp-action="@item.Action"> @item.Name 
+                    </a> 
+                </Div>
+            }
+            <a asp-controller="Overzicht" asp-action="Index">Overzichten</a>
+
+        }    
+            
+        @if (User.IsInRole("Kok"))
+        {
+            @foreach (var item in Model.OberData)
+            {
+                <Div class="col d-grid"> 
+                    <a class="btn raleway bg-blue-deep border-gold gold p-4 border border-3 rounded shadow-sm fs-4 fw-bold h-100" 
+                       asp-area="" 
+                       asp-controller="@item.Controller" 
+                       asp-action="@item.Action"> @item.Name 
+                    </a> 
+                </Div>
+            } 
+        }
+            
+        @if (User.IsInRole("Ober"))
+        {
+            @foreach (var item in Model.KokData)
+            {
+                <Div class="col d-grid"> 
+                    <a class="btn raleway bg-blue-deep border-gold gold p-4 border border-3 rounded shadow-sm fs-4 fw-bold h-100" 
+                       asp-area="" 
+                       asp-controller="@item.Controller" 
+                       asp-action="@item.Action"> @item.Name 
+                    </a> 
+                </Div>
+            }
+        }
+    </div>
+</div>
+
+@* Code hieronder nog even in laten staan aub nog nodig voor portflow *@
+@* <div class="mt-xl-5"></div> *@
+@* <div class="my-5"></div> *@
+@* <div class="container mt-5"> *@
+@*     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 text-center"> *@
+@* *@
+@*         <div class="col d-grid"> *@
+@*             <a class="btn raleway bg-blue-deep border-gold gold p-5 border border-4 rounded shadow-sm fs-3 fw-bold h-100" *@
+@*                asp-area="" *@
+@*                asp-controller="Account" *@
+@*                asp-action="Index"> *@
+@*                 Accounts *@
+@*             </a> *@
+@*         </div> *@
+@* *@
+@*         <div class="col d-grid"> *@
+@*             <a class="btn raleway bg-blue-deep border-gold gold p-5 border border-4 rounded shadow-sm fs-3 fw-bold h-100" *@
+@*                asp-area="" *@
+@*                asp-controller="Mail" *@
+@*                asp-action="Index"> *@
+@*                 Mails *@
+@*             </a> *@
+@*         </div> *@
+@* *@
+@*         <div class="col d-grid"> *@
+@*             <a class="btn raleway bg-blue-deep border-gold gold p-5 border border-4 rounded shadow-sm fs-3 fw-bold h-100" *@
+@*                asp-area="" *@
+@*                asp-controller="DbLoggin" *@
+@*                asp-action="Index"> *@
+@*                 Logs *@
+@*             </a> *@
+@*         </div> *@
+@* *@
+@*         <div class="col d-grid"> *@
+@*             <a class="btn raleway bg-blue-deep border-gold gold p-5 border border-4 rounded shadow-sm fs-3 fw-bold h-100" *@
+@*                asp-area="" *@
+@*                asp-controller="Reservatie" *@
+@*                asp-action="ReservatieBeheer"> *@
+@*                 Reservaties *@
+@*             </a> *@
+@*         </div> *@
+@*         <div class="col d-grid"> *@
+@*             <a class="btn raleway bg-blue-deep border-gold gold p-5 border border-4 rounded shadow-sm fs-3 fw-bold h-100" *@
+@*                asp-area="" *@
+@*                asp-controller="Reservatie" *@
+@*                asp-action="ReservatieEnqueteBeheer"> *@
+@*                 Enquêtes *@
+@*             </a> *@
+@*         </div> *@
+@* *@
+@*         <div class="col d-grid"> *@
+@*             <a class="btn raleway bg-blue-deep border-gold gold p-5 border border-4 rounded shadow-sm fs-3 fw-bold h-100" *@
+@*                asp-area="" *@
+@*                asp-controller="Tafel" *@
+@*                asp-action="Index"> *@
+@*                 Tafels *@
+@*             </a> *@
+@*         </div> *@
+@*         <div class="col d-grid"> *@
+@*             <a class="btn raleway bg-blue-deep border-gold gold p-5 border border-4 rounded shadow-sm fs-3 fw-bold h-100" *@
+@*                asp-area="" *@
+@*                asp-controller="Parameter" *@
+@*                asp-action="Index"> *@
+@*                 Parameters *@
+@*             </a> *@
+@*         </div> *@
+@*         <div class="col d-grid"> *@
+@*             <a class="btn raleway bg-blue-deep border-gold gold p-5 border border-4 rounded shadow-sm fs-3 fw-bold h-100" *@
+@*                asp-area="" *@
+@*                asp-controller="Tafel" *@
+@*                asp-action="Afrekenen"> *@
+@*                 Afrekenen *@
+@*             </a> *@
+@*         </div> *@
+@*          *@
+@*         @if (User.IsInRole("Kok")) *@
+@*         { *@
+@*             <Div class="col d-grid"> *@
+@*                 <a class="btn raleway bg-blue-deep border-gold gold p-5 border border-4 rounded shadow-sm fs-3 fw-bold h-100" *@
+@*                    asp-area="" *@
+@*                    asp-controller="Product" asp-action="Index"> *@
+@*                     Gerechten *@
+@*                 </a> *@
+@*             </Div> *@
+@*         } *@
+@*         @if (User.IsInRole("Ober")) *@
+@*         { *@
+@*             <Div class="col d-grid"> *@
+@*                 <a class="btn raleway bg-blue-deep border-gold gold p-5 border border-4 rounded shadow-sm fs-3 fw-bold h-100" *@
+@*                    asp-area="" *@
+@*                    asp-controller="Product" asp-action="Index"> *@
+@*                     Drank *@
+@*                 </a> *@
+@*             </Div> *@
+@*         } *@
+@*         @if (User.IsInRole("Eigenaar")) *@
+@*         { *@
+@*             <Div class="col d-grid"> *@
+@*                 <a class="btn raleway bg-blue-deep border-gold gold p-5 border border-4 rounded shadow-sm fs-3 fw-bold h-100" *@
+@*                    asp-area="" *@
+@*                    asp-controller="Product" asp-action="Index"> *@
+@*                     Producten *@
+@*                 </a> *@
+@*             </Div> *@
+@*         } *@
+@*         <div class="col d-grid"> *@
+@*             <a class="btn raleway bg-blue-deep border-gold gold p-5 border border-4 rounded shadow-sm fs-3 fw-bold h-100" *@
+@*                asp-area="" *@
+@*                asp-controller="Kok" *@
+@*                asp-action="Index"> *@
+@*                 Kok overzicht *@
+@*             </a> *@
+@*         </div> *@
+@*         <div class="col d-grid"> *@
+@*             <a class="btn raleway bg-blue-deep border-gold gold p-5 border border-4 rounded shadow-sm fs-3 fw-bold h-100" *@
+@*                asp-area="" *@
+@*                asp-controller="Ober" *@
+@*                asp-action="Index"> *@
+@*                 Ober overzicht *@
+@*             </a> *@
+@*         </div> *@
+@*         <div class="col d-grid"> *@
+@*             <a class="btn raleway bg-blue-deep border-gold gold p-5 border border-4 rounded shadow-sm fs-3 fw-bold h-100" *@
+@*                asp-area="" *@
+@*                asp-controller="Account" *@
+@*                asp-action="Dashboard"> *@
+@*                 Admin account *@
+@*             </a> *@
+@*         </div> *@
+@*         <div class="col d-grid"> *@
+@*             <a class="btn raleway bg-blue-deep border-gold gold p-5 border border-4 rounded shadow-sm fs-3 fw-bold h-100" *@
+@*                asp-area="" *@
+@*                asp-controller="Categorie" *@
+@*                asp-action="Index"> *@
+@*                 Categorie beheren *@
+@*             </a> *@
+@*         </div> *@
+@* *@
+@*     </div> *@
+@* </div> *@

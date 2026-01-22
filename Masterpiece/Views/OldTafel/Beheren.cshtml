@@ -1,0 +1,844 @@
+﻿@* @model Restaurant.ViewModels.TafelListViewModel *@
+@* @using Microsoft.AspNetCore.Identity *@
+@* @inject SignInManager<CustomUser> SignInManager *@
+@* @inject UserManager<CustomUser> UserManager *@
+
+@* <style> *@
+@*     .tafel-floor-grid { *@
+@*         display: grid; *@
+@*         grid-template-columns: repeat(12, minmax(0, 1fr)); *@
+@*         gap: 1.75rem; *@
+@*         padding: 1rem 0 2rem; *@
+@*         max-width: 1600px; *@
+@*         margin-left: auto; *@
+@*         margin-right: auto; *@
+@*     } *@
+
+@*     .tafel-filter-bar { *@
+@*         display: inline-flex; *@
+@*         gap: .5rem; *@
+@*         margin-bottom: 0; /* marge komt nu uit de container-row */ *@
+@*     } *@
+
+@*     .tafel-filter-pill { *@
+@*         border-radius: 999px; *@
+@*         padding: .35rem .9rem; *@
+@*         font-size: .85rem; *@
+@*         border: 1px solid #495057; *@
+@*         background: rgba(7, 13, 30, 0.9); *@
+@*         color: #f8f9fa; *@
+@*         text-decoration: none; *@
+@*         cursor: pointer; *@
+@*         transition: background .15s, border-color .15s, color .15s; *@
+@*     } *@
+
+@*         .tafel-filter-pill:hover { *@
+@*             background: #0d6efd; *@
+@*             border-color: #0d6efd; *@
+@*         } *@
+
+@*     .tafel-filter-pill--active { *@
+@*         background: #0d6efd; *@
+@*         border-color: #0d6efd; *@
+@*         color: #fff; *@
+@*         box-shadow: 0 0 0 .15rem rgba(13, 110, 253, 0.35); *@
+@*     } *@
+
+@*     .tafel-card { *@
+@*         border-radius: 0.33rem; *@
+@*         background: rgba(7, 13, 30, 0.95); *@
+@*         border: 2px solid transparent; *@
+@*         box-shadow: 0 0.25rem 0.8rem rgba(0,0,0,0.4); *@
+@*         padding: 1rem; *@
+@*         color: #f8f9fa; *@
+@*         font-size: .9rem; *@
+@*         display: flex; *@
+@*         flex-direction: column; *@
+@*         justify-content: space-between; *@
+@*         min-height: 140px; *@
+@*         transition: transform .1s ease-in-out; *@
+@*     } *@
+
+@*         .tafel-card:hover { *@
+@*             transform: translateY(-2px); *@
+@*         } *@
+
+@*     .tafel-card__header { *@
+@*         display: flex; *@
+@*         justify-content: space-between; *@
+@*         align-items: center; *@
+@*         margin-bottom: .5rem; *@
+@*     } *@
+
+@*     .tafel-card__number { *@
+@*         font-weight: 700; *@
+@*         font-size: 1.15rem; *@
+@*     } *@
+
+@*     .tafel-card__status { *@
+@*         font-size: .85rem; *@
+@*         font-weight: 600; *@
+@*         text-transform: uppercase; *@
+@*         opacity: .85; *@
+@*     } *@
+
+@*     .tafel-card__meta { *@
+@*         font-size: .82rem; *@
+@*         opacity: .85; *@
+@*     } *@
+
+@*     .tafel-card__line { *@
+@*         margin-top: .2rem; *@
+@*     } *@
+
+@*     .tafel-card__line--muted { *@
+@*         opacity: .6; *@
+@*         font-style: italic; *@
+@*     } *@
+
+@*     .tafel-card__amount { *@
+@*         margin-top: .25rem; *@
+@*         font-weight: 700; *@
+@*     } *@
+
+@*     .tafel-card__actions { *@
+@*         margin-top: .5rem; *@
+@*         display: flex; *@
+@*         gap: .35rem; *@
+@*     } *@
+
+@*     .tafel-icon { *@
+@*         width: 28px; *@
+@*         height: 28px; *@
+@*         border-radius: 999px; *@
+@*         display: flex; *@
+@*         justify-content: center; *@
+@*         align-items: center; *@
+@*         font-size: .9rem; *@
+@*         border: 1px solid transparent; *@
+@*         cursor: pointer; *@
+@*     } *@
+
+@*     .tafel-icon--primary { *@
+@*         background: #2196f3; *@
+@*         color: #fff; *@
+@*     } *@
+
+@*     .tafel-icon--danger { *@
+@*         background: #ef476f; *@
+@*         color: #fff; *@
+@*     } *@
+
+@*     /* actieve tafels = teal, inactieve = donker */ *@
+@*     .tafel-card--free { *@
+@*         border-color: #198754; *@
+@*         background: #177b85; *@
+@*     } *@
+
+@*     .tafel-card--reserved { *@
+@*         border-color: #fd7e14; *@
+@*         background: #177b85; *@
+@*     } *@
+
+@*     .tafel-card--busy { *@
+@*         border-color: #dc3545; *@
+@*         background: #177b85; *@
+@*     } *@
+
+@*     .tafel-card--inactive { *@
+@*         border-color: #6c757d; *@
+@*         opacity: .6; *@
+@*         /* dark bg uit .tafel-card houden we */ *@
+@*     } *@
+
+@*     .tafel-card--size-s { *@
+@*         grid-column: span 3; *@
+@*     } *@
+
+@*     .tafel-card--size-m { *@
+@*         grid-column: span 4; *@
+@*     } *@
+
+@*     .tafel-card--size-l { *@
+@*         grid-column: span 5; *@
+@*     } *@
+
+@*     .tafel-card--size-xl { *@
+@*         grid-column: span 6; *@
+@*     } *@
+@* </style> *@
+
+@* <!-- Titel op eigen lijn --> *@
+@* <h2 class="twinkle gold-soft mb-2">Tafels beheren</h2> *@
+
+@* @if (User.IsInRole("Zaalverantwoordelijke") || User.IsInRole("Eigenaar")) *@
+@* { *@
+@*     <div class="d-flex align-items-center gap-2 flex-wrap mb-3"> *@
+@*         <!-- + Nieuwe tafel --> *@
+@*         <a asp-controller="OldTafel" *@
+@*            asp-action="Create" *@
+@*            class="btn btn-sm btn-success" *@
+@*            title="Nieuwe tafel toevoegen"> *@
+@*             <i class="bi bi-plus-lg"></i> *@
+@*         </a> *@
+
+@*         <!-- Tabs: Zaal / Opslag --> *@
+@*         <div class="tafel-filter-bar" role="tablist" aria-label="Tafel weergave"> *@
+@*             <a asp-action="Index" *@
+@*                asp-route-tab="beheren" *@
+@*                asp-route-filter="active" *@
+@*                class="tafel-filter-pill @(Model.ActiveFilter == "active" ? "tafel-filter-pill--active" : "")"> *@
+@*                 Zaal *@
+@*             </a> *@
+
+@*             <a asp-action="Index" *@
+@*                asp-route-tab="beheren" *@
+@*                asp-route-filter="inactive" *@
+@*                class="tafel-filter-pill @(Model.ActiveFilter == "inactive" ? "tafel-filter-pill--active" : "")"> *@
+@*                 Opslag *@
+@*             </a> *@
+@*         </div> *@
+@*     </div> *@
+@* } *@
+
+
+@* <div class="tafel-floor-grid"> *@
+@*     @foreach (var tafel in Model.Tafels.OrderBy(t => t.TafelNummer)) *@
+@*     { *@
+@*         var statusClass = GetStatusClass(tafel); *@
+@*         var statusText = GetStatusText(tafel); *@
+@*         var sizeClass = GetSizeClass(tafel); *@
+
+@*         var res = tafel.Reservaties.FirstOrDefault(r => !r.IsBetaald) *@
+@*         ?? tafel.Reservaties.FirstOrDefault(); *@
+
+@*         <div class="tafel-card @statusClass @sizeClass"> *@
+@*             <div class="tafel-card__header"> *@
+@*                 <span class="tafel-card__number">@tafel.TafelNummer</span> *@
+@*                 <span class="tafel-card__status">@statusText</span> *@
+@*             </div> *@
+
+@*             <div class="tafel-card__body"> *@
+@*                 <div class="tafel-card__meta"> *@
+@*                     @tafel.MinAantalPersonen–@tafel.AantalPersonen personen *@
+@*                 </div> *@
+
+@*                 @if (res != null) *@
+@*                 { *@
+@*                     <div class="tafel-card__line mt-1"> *@
+@*                         @res.Naam – @res.Datum?.ToString("HH:mm") *@
+@*                     </div> *@
+
+@*                     @if (!res.IsBetaald) *@
+@*                     { *@
+@*                         <div class="tafel-card__amount mt-1"> *@
+@*                             Openstaand: @res.Totaal € *@
+@*                         </div> *@
+@*                     } *@
+@*                 } *@
+@*                 else *@
+@*                 { *@
+@*                     <div class="tafel-card__line tafel-card__line--muted mt-1"> *@
+@*                         Geen lopende reservatie *@
+@*                     </div> *@
+@*                 } *@
+@*             </div> *@
+
+@*             @if (User.IsInRole("Zaalverantwoordelijke") || User.IsInRole("Eigenaar")) *@
+@*             { *@
+@*                 <div class="tafel-card__actions"> *@
+@*                     <a asp-controller="OldTafel" *@
+@*                        asp-action="Edit" *@
+@*                        asp-route-id="@tafel.Id" *@
+@*                        class="tafel-icon tafel-icon--primary" *@
+@*                        title="Tafel wijzigen"> *@
+@*                         <i class="bi bi-pencil"></i> *@
+@*                     </a> *@
+
+@*                     <button type="button" *@
+@*                             class="tafel-icon tafel-icon--danger" *@
+@*                             title="Tafel verwijderen" *@
+@*                             data-bs-toggle="modal" *@
+@*                             data-bs-target="#deleteTafelModal-@tafel.Id"> *@
+@*                         <i class="bi bi-trash"></i> *@
+@*                     </button> *@
+@*                 </div> *@
+@*             } *@
+@*         </div> *@
+
+@*         @if (User.IsInRole("Zaalverantwoordelijke") || User.IsInRole("Eigenaar")) *@
+@*         { *@
+@*             var currentFilter = (Model.ActiveFilter ?? "active").ToLowerInvariant(); *@
+
+@*             bool isInactive = !tafel.Actief; *@
+@*             bool isHardDelete = *@
+@*             string.Equals(currentFilter, "inactive", StringComparison.OrdinalIgnoreCase) || *@
+@*             (string.Equals(currentFilter, "all", StringComparison.OrdinalIgnoreCase) && isInactive); *@
+
+@*             var modalTitle = isHardDelete *@
+@*             ? "Tafel definitief verwijderen" *@
+@*             : "Tafel inactief zetten"; *@
+
+@*             var modalBody = isHardDelete *@
+@*             ? "Deze tafel wordt definitief verwijderd. Nieuwe tafels kunnen dit nummer opnieuw gebruiken. Weet je het zeker?" *@
+@*             : "Deze tafel wordt verplaatst naar 'Inactieve tafels'. Als je het nummer opnieuw wilt hergebruiken, moet je ze daar definitief verwijderen. Doorgaan?"; *@
+
+@*             <div class="modal fade" *@
+@*                  id="deleteTafelModal-@tafel.Id" *@
+@*                  tabindex="-1" *@
+@*                  aria-labelledby="deleteTafelLabel-@tafel.Id" *@
+@*                  aria-hidden="true"> *@
+@*                 <div class="modal-dialog modal-dialog-centered"> *@
+@*                     <div class="modal-content bg-blue-soft text-light"> *@
+@*                         <div class="modal-header border-0"> *@
+@*                             <h5 class="modal-title twinkle" id="deleteTafelLabel-@tafel.Id"> *@
+@*                                 @modalTitle *@
+@*                             </h5> *@
+
+@*                             <button type="button" *@
+@*                                     class="btn-close btn-close-white" *@
+@*                                     data-bs-dismiss="modal" *@
+@*                                     aria-label="Close"> *@
+@*                             </button> *@
+@*                         </div> *@
+
+@*                         <div class="modal-body"> *@
+@*                             <p>@modalBody</p> *@
+
+@*                             <p class="small text-muted mb-0"> *@
+@*                                 Tafel: <strong>@tafel.TafelNummer</strong> *@
+@*                                 (@tafel.MinAantalPersonen–@tafel.AantalPersonen personen) *@
+@*                             </p> *@
+@*                         </div> *@
+
+@*                         <div class="modal-footer border-0"> *@
+@*                             <button type="button" *@
+@*                                     class="btn btn-secondary" *@
+@*                                     data-bs-dismiss="modal"> *@
+@*                                 Annuleren *@
+@*                             </button> *@
+
+@*                             <form asp-action="DeleteConfirmed" *@
+@*                                   method="post" *@
+@*                                   class="d-inline"> *@
+@*                                 @Html.AntiForgeryToken() *@
+@*                                 <input type="hidden" name="id" value="@tafel.Id" /> *@
+@*                                 <input type="hidden" name="currentFilter" value="@Model.ActiveFilter" /> *@
+@*                                 <button type="submit" class="btn btn-danger"> *@
+@*                                     @(isHardDelete ? "Definitief verwijderen" : "Naar inactief verplaatsen") *@
+@*                                 </button> *@
+@*                             </form> *@
+@*                         </div> *@
+@*                     </div> *@
+@*                 </div> *@
+@*             </div> *@
+@*         } *@
+@*     } *@
+@* </div> *@
+
+@* <script> *@
+@*     document.addEventListener("DOMContentLoaded", function () { *@
+@*         const btn = document.getElementById("toggleFiltersBtn"); *@
+@*         const bar = document.getElementById("tafelFilterBar"); *@
+
+@*         if (!btn || !bar) return; *@
+
+@*         // Initial state: hide on first load, but respect stored preference *@
+@*         const stored = sessionStorage.getItem("tafelFiltersVisible"); *@
+@*         if (stored === "true") { *@
+@*             bar.classList.remove("d-none"); *@
+@*         } else if (stored === "false") { *@
+@*             bar.classList.add("d-none"); *@
+@*         } *@
+
+@*         btn.addEventListener("click", function () { *@
+@*             bar.classList.toggle("d-none"); *@
+@*             const nowVisible = !bar.classList.contains("d-none"); *@
+@*             sessionStorage.setItem("tafelFiltersVisible", nowVisible ? "true" : "false"); *@
+@*         }); *@
+@*     }); *@
+@* </script> *@
+
+@* @functions { *@
+@*     string GetStatusClass(Restaurant.ViewModels.TafelReservatiesViewModel tafel) *@
+@*     { *@
+@*         if (!tafel.Actief) return "tafel-card--inactive"; *@
+
+@*         bool heeftRes = tafel.Reservaties.Any(); *@
+@*         bool heeftOpenstaande = tafel.Reservaties.Any(r => !r.IsBetaald); *@
+
+@*         if (heeftOpenstaande) return "tafel-card--busy"; *@
+@*         if (heeftRes) return "tafel-card--reserved"; *@
+@*         return "tafel-card--free"; *@
+@*     } *@
+
+@*     string GetStatusText(Restaurant.ViewModels.TafelReservatiesViewModel tafel) *@
+@*     { *@
+@*         if (!tafel.Actief) return "Inactief"; *@
+
+@*         bool heeftRes = tafel.Reservaties.Any(); *@
+@*         bool heeftOpenstaande = tafel.Reservaties.Any(r => !r.IsBetaald); *@
+
+@*         if (heeftOpenstaande) return "Bezet"; *@
+@*         if (heeftRes) return "Gereserveerd"; *@
+@*         return "Vrij"; *@
+@*     } *@
+
+@*     string GetSizeClass(Restaurant.ViewModels.TafelReservatiesViewModel tafel) *@
+@*     { *@
+@*         var max = tafel.AantalPersonen; *@
+
+@*         if (max <= 2) return "tafel-card--size-s";   // 1–2 *@
+@*         if (max <= 4) return "tafel-card--size-m";   // 3–4 *@
+@*         if (max <= 6) return "tafel-card--size-l";   // 5–6 *@
+
+@*         return "tafel-card--size-xl";                // 7+ *@
+@*     } *@
+@* } *@
+
+@model Restaurant.ViewModels.TafelListViewModel
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<CustomUser> SignInManager
+@inject UserManager<CustomUser> UserManager
+
+@{
+    var isManager = User.IsInRole("Zaalverantwoordelijke") || User.IsInRole("Eigenaar");
+    var isZaal = string.Equals(Model.ActiveFilter, "active", StringComparison.OrdinalIgnoreCase);
+}
+
+<style>
+    .tafel-floor-grid {
+        display: grid;
+        grid-template-columns: repeat(12, minmax(0, 1fr));
+        gap: 1.75rem;
+        padding: 1rem 0 2rem;
+        max-width: 1600px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .tafel-filter-bar {
+        display: inline-flex;
+        gap: .5rem;
+        margin-bottom: 0;
+    }
+
+    .tafel-filter-pill {
+        border-radius: 999px;
+        padding: .35rem .9rem;
+        font-size: .85rem;
+        border: 1px solid #495057;
+        background: rgba(7, 13, 30, 0.9);
+        color: #f8f9fa;
+        text-decoration: none;
+        cursor: pointer;
+        transition: background .15s, border-color .15s, color .15s;
+    }
+
+        .tafel-filter-pill:hover {
+            background: #0d6efd;
+            border-color: #0d6efd;
+        }
+
+    .tafel-filter-pill--active {
+        background: #0d6efd;
+        border-color: #0d6efd;
+        color: #fff;
+        box-shadow: 0 0 0 .15rem rgba(13, 110, 253, 0.35);
+    }
+
+    .tafel-card {
+        border-radius: 0.33rem;
+        background: rgba(7, 13, 30, 0.95);
+        border: 2px solid transparent;
+        box-shadow: 0 0.25rem 0.8rem rgba(0,0,0,0.4);
+        padding: 1rem;
+        color: #f8f9fa;
+        font-size: .9rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 140px;
+        transition: transform .1s ease-in-out;
+        position: relative;
+        user-select: none;
+    }
+
+        .tafel-card:hover {
+            transform: translateY(-2px);
+        }
+
+    .tafel-card__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: .5rem;
+    }
+
+    .tafel-card__number {
+        font-weight: 700;
+        font-size: 1.15rem;
+    }
+
+    .tafel-card__status {
+        font-size: .85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        opacity: .85;
+    }
+
+    .tafel-card__meta {
+        font-size: .82rem;
+        opacity: .85;
+    }
+
+    .tafel-card__line {
+        margin-top: .2rem;
+    }
+
+    .tafel-card__line--muted {
+        opacity: .6;
+        font-style: italic;
+    }
+
+    .tafel-card__amount {
+        margin-top: .25rem;
+        font-weight: 700;
+    }
+
+    .tafel-card__actions {
+        margin-top: .5rem;
+        display: flex;
+        gap: .35rem;
+    }
+
+    .tafel-icon {
+        width: 28px;
+        height: 28px;
+        border-radius: 999px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: .9rem;
+        border: 1px solid transparent;
+        cursor: pointer;
+    }
+
+    .tafel-icon--primary {
+        background: #2196f3;
+        color: #fff;
+    }
+
+    .tafel-icon--danger {
+        background: #ef476f;
+        color: #fff;
+    }
+
+    /* actieve tafels = teal, inactieve = donker */
+    .tafel-card--free {
+        border-color: #198754;
+        background: #177b85;
+    }
+
+    .tafel-card--reserved {
+        border-color: #fd7e14;
+        background: #177b85;
+    }
+
+    .tafel-card--busy {
+        border-color: #dc3545;
+        background: #177b85;
+    }
+
+    .tafel-card--inactive {
+        border-color: #6c757d;
+        opacity: .6;
+    }
+
+    .tafel-card--size-s {
+        grid-column: span 3;
+    }
+
+    .tafel-card--size-m {
+        grid-column: span 4;
+    }
+
+    .tafel-card--size-l {
+        grid-column: span 5;
+    }
+
+    .tafel-card--size-xl {
+        grid-column: span 6;
+    }
+
+    /* ───────────────────────── DRAG MODE (Zaal only) ───────────────────────── */
+    .js-tafel-grid.readonly .tafel-card {
+        cursor: default;
+        outline: none;
+    }
+
+    .js-tafel-grid:not(.readonly) .tafel-card {
+        cursor: grab;
+        outline: 2px dashed rgba(13,110,253,.35);
+        outline-offset: 4px;
+    }
+
+        .js-tafel-grid:not(.readonly) .tafel-card:active {
+            cursor: grabbing;
+        }
+
+    /* In edit-mode wil je niet per ongeluk CRUD klikken */
+    .js-tafel-grid:not(.readonly) .tafel-card__actions {
+        opacity: .35;
+        pointer-events: none;
+    }
+</style>
+
+<h2 class="twinkle gold-soft mb-2">Tafels beheren</h2>
+
+@if (isManager)
+{
+    <div class="d-flex align-items-center gap-2 flex-wrap mb-3">
+        <!-- + Nieuwe tafel -->
+        <a asp-controller="OldTafel"
+           asp-action="Create"
+           class="btn btn-sm btn-success"
+           title="Nieuwe tafel toevoegen">
+            <i class="bi bi-plus-lg"></i>
+        </a>
+
+        <!-- Tabs: Zaal / Opslag -->
+        <div class="tafel-filter-bar" role="tablist" aria-label="Tafel weergave">
+            <a asp-action="Index"
+               asp-route-tab="beheren"
+               asp-route-filter="active"
+               class="tafel-filter-pill @(isZaal ? "tafel-filter-pill--active" : "")">
+                Zaal
+            </a>
+
+            <a asp-action="Index"
+               asp-route-tab="beheren"
+               asp-route-filter="inactive"
+               class="tafel-filter-pill @(!isZaal ? "tafel-filter-pill--active" : "")">
+                Opslag
+            </a>
+        </div>
+
+        @* Drag controls: ONLY for Zaal *@
+        @if (isZaal)
+        {
+            <div class="d-flex align-items-center gap-2 flex-wrap ms-2">
+                <button type="button"
+                        id="editModeBtn"
+                        class="btn btn-sm btn-outline-warning">
+                    Edit layout
+                </button>
+
+                <button type="button"
+                        id="saveLayoutBtn"
+                        class="btn btn-sm btn-success"
+                        style="display:none;">
+                    Save changes
+                </button>
+
+                <button type="button"
+                        id="resetLayoutBtn"
+                        class="btn btn-sm btn-outline-secondary"
+                        style="display:none;">
+                    Reset to original order
+                </button>
+            </div>
+        }
+    </div>
+}
+
+<div class="tafel-floor-grid js-tafel-grid readonly"
+     data-layout-scope="@(isZaal ? "zaal" : "opslag")">
+    @foreach (var tafel in Model.Tafels.OrderBy(t => t.TafelNummer))
+    {
+        var statusClass = GetStatusClass(tafel);
+        var statusText = GetStatusText(tafel);
+        var sizeClass = GetSizeClass(tafel);
+
+        var res = tafel.Reservaties.FirstOrDefault(r => !r.IsBetaald)
+        ?? tafel.Reservaties.FirstOrDefault();
+
+        <div class="tafel-card @statusClass @sizeClass" data-id="@tafel.Id">
+            <div class="tafel-card__header">
+                <span class="tafel-card__number">@tafel.TafelNummer</span>
+                <span class="tafel-card__status">@statusText</span>
+            </div>
+
+            <div class="tafel-card__body">
+                <div class="tafel-card__meta">
+                    @tafel.MinAantalPersonen–@tafel.AantalPersonen personen
+                </div>
+
+                @if (res != null)
+                {
+                    <div class="tafel-card__line mt-1">
+                        @res.Naam – @res.Datum?.ToString("HH:mm")
+                    </div>
+
+                    @if (!res.IsBetaald)
+                    {
+                        <div class="tafel-card__amount mt-1">
+                            Openstaand: @res.Totaal €
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="tafel-card__line tafel-card__line--muted mt-1">
+                        Geen lopende reservatie
+                    </div>
+                }
+            </div>
+
+            @if (isManager)
+            {
+                <div class="tafel-card__actions">
+                    <a asp-controller="OldTafel"
+                       asp-action="Edit"
+                       asp-route-id="@tafel.Id"
+                       class="tafel-icon tafel-icon--primary"
+                       title="Tafel wijzigen">
+                        <i class="bi bi-pencil"></i>
+                    </a>
+
+                    <button type="button"
+                            class="tafel-icon tafel-icon--danger"
+                            title="Tafel verwijderen"
+                            data-bs-toggle="modal"
+                            data-bs-target="#deleteTafelModal-@tafel.Id">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+            }
+        </div>
+
+        @if (isManager)
+        {
+            var currentFilter = (Model.ActiveFilter ?? "active").ToLowerInvariant();
+
+            bool isInactive = !tafel.Actief;
+
+            // ✅ "all" bestaat niet meer in UI, dus hard delete enkel in Opslag
+            bool isHardDelete = string.Equals(currentFilter, "inactive", StringComparison.OrdinalIgnoreCase);
+
+            var modalTitle = isHardDelete
+            ? "Tafel definitief verwijderen"
+            : "Tafel inactief zetten";
+
+            var modalBody = isHardDelete
+            ? "Deze tafel wordt definitief verwijderd. Nieuwe tafels kunnen dit nummer opnieuw gebruiken. Weet je het zeker?"
+            : "Deze tafel wordt verplaatst naar 'Opslag'. Als je het nummer opnieuw wilt hergebruiken, moet je ze daar definitief verwijderen. Doorgaan?";
+
+            <div class="modal fade"
+                 id="deleteTafelModal-@tafel.Id"
+                 tabindex="-1"
+                 aria-labelledby="deleteTafelLabel-@tafel.Id"
+                 aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content bg-blue-soft text-light">
+                        <div class="modal-header border-0">
+                            <h5 class="modal-title twinkle" id="deleteTafelLabel-@tafel.Id">
+                                @modalTitle
+                            </h5>
+
+                            <button type="button"
+                                    class="btn-close btn-close-white"
+                                    data-bs-dismiss="modal"
+                                    aria-label="Close">
+                            </button>
+                        </div>
+
+                        <div class="modal-body">
+                            <p>@modalBody</p>
+
+                            <p class="small text-muted mb-0">
+                                Tafel: <strong>@tafel.TafelNummer</strong>
+                                (@tafel.MinAantalPersonen–@tafel.AantalPersonen personen)
+                            </p>
+                        </div>
+
+                        <div class="modal-footer border-0">
+                            <button type="button"
+                                    class="btn btn-secondary"
+                                    data-bs-dismiss="modal">
+                                Annuleren
+                            </button>
+
+                            <form asp-controller="OldTafel"
+                                asp-action="DeleteConfirmed"
+                                  method="post"
+                                  class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@tafel.Id" />
+                                <input type="hidden" name="currentFilter" value="@Model.ActiveFilter" />
+                                <button type="submit" class="btn btn-danger">
+                                    @(isHardDelete ? "Definitief verwijderen" : "Naar opslag verplaatsen")
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+@section Scripts {
+    @* Only load drag JS for Zaal *@
+    @if (isManager && isZaal)
+    {
+        <script src="~/js/oldtafel-layout.js"></script>
+    }
+}
+
+@functions {
+    string GetStatusClass(Restaurant.ViewModels.TafelReservatiesViewModel tafel)
+    {
+        if (!tafel.Actief) return "tafel-card--inactive";
+
+        bool heeftRes = tafel.Reservaties.Any();
+        bool heeftOpenstaande = tafel.Reservaties.Any(r => !r.IsBetaald);
+
+        if (heeftOpenstaande) return "tafel-card--busy";
+        if (heeftRes) return "tafel-card--reserved";
+        return "tafel-card--free";
+    }
+
+    string GetStatusText(Restaurant.ViewModels.TafelReservatiesViewModel tafel)
+    {
+        if (!tafel.Actief) return "Inactief";
+
+        bool heeftRes = tafel.Reservaties.Any();
+        bool heeftOpenstaande = tafel.Reservaties.Any(r => !r.IsBetaald);
+
+        if (heeftOpenstaande) return "Bezet";
+        if (heeftRes) return "Gereserveerd";
+        return "Vrij";
+    }
+
+    string GetSizeClass(Restaurant.ViewModels.TafelReservatiesViewModel tafel)
+    {
+        var max = tafel.AantalPersonen;
+
+        if (max <= 2) return "tafel-card--size-s";
+        if (max <= 4) return "tafel-card--size-m";
+        if (max <= 6) return "tafel-card--size-l";
+
+        return "tafel-card--size-xl";
+    }
+}
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+  <div id="layoutSavedToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex">
+      <div class="toast-body">
+        Layout saved ✅
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+  </div>
+</div>

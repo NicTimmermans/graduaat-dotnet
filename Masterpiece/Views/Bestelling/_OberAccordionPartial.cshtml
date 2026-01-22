@@ -1,0 +1,133 @@
+﻿@model List<BestellingOverzichtViewModel>
+
+<div class="accordion" id="accordionOber">
+    @for (int r = 0; r < Model.Count; r++)
+    {
+        var reservatie = Model[r];
+
+        bool alleGerechtenKlaar = reservatie.Gerechten.Any() && reservatie.Gerechten.All(g => g.StatusId == 2);
+        bool alleDrankenGeleverd = !reservatie.Dranken.Any() || reservatie.Dranken.All(d => d.StatusId == 3);
+
+        string headerClass = "accordion-button collapsed bg-light text-dark";
+
+        if (alleGerechtenKlaar)
+        {
+            headerClass = "accordion-button collapsed bg-success text-white";
+        }
+        else if (alleDrankenGeleverd && !alleGerechtenKlaar)
+        {
+            headerClass = "accordion-button collapsed bg-warning text-dark";
+        }
+
+        string tafelNummer = reservatie.TafelNummers.FirstOrDefault() ?? "-";
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingOber@(r)">
+                <button class="@headerClass" type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#collapseOber@(r)"
+                        aria-expanded="false"
+                        aria-controls="collapseOber@(r)">
+                    Tafel: @tafelNummer
+                </button>
+            </h2>
+
+            <div id="collapseOber@(r)" class="accordion-collapse collapse"
+                 aria-labelledby="headingOber@(r)">
+                <div class="accordion-body">
+
+                    @* GERECHTEN *@
+                    @if (reservatie.Gerechten.Any())
+                    {
+                        <h5>Gerechten</h5>
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Gerecht</th>
+                                    <th>Status / Opmerking</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (int i = 0; i < reservatie.Gerechten.Count; i++)
+                                {
+                                    var g = reservatie.Gerechten[i];
+                                    bool disabled = !g.ProductActief;
+
+                                    <tr class="@(disabled ? "table-danger" : "")">
+                                        <td>
+                                            @g.ProductNaam
+                                            @if (!g.ProductActief)
+                                            {
+                                                <span class="badge bg-danger ms-2">Niet beschikbaar</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <input type="hidden" name="items[@g.BestellingId].BestellingId" value="@g.BestellingId" />
+                                            <input type="hidden" name="items[@g.BestellingId].StatusId"
+                                                   id="gerechtStatus_@(r)_@(i)"
+                                                   value="@g.StatusId" />
+                                            <textarea class="form-control mb-1"
+                                          name="items[@g.BestellingId].Opmerking"
+                                          rows="2"
+                                          @(disabled ? "readonly" : "")>@g.Opmerking</textarea>
+                                            <div class="btn-group">
+                                                <button type="button"
+                                                        class="btn btn-outline-warning btn-status"
+                                                        data-target="gerechtStatus_@(r)_@(i)"
+                                                        data-value="1"
+                                                        @(disabled ? "disabled" : "")>
+                                                    In Behandeling
+                                                </button>
+                                                <button type="button"
+                                                        class="btn btn-outline-success btn-status"
+                                                        data-target="gerechtStatus_@(r)_@(i)"
+                                                        data-value="3"
+                                                        @(disabled ? "disabled" : "")>
+                                                    Geleverd
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+
+                    @* DRANKEN *@
+                    @if (reservatie.Dranken.Any())
+                    {
+                        <h5>Dranken</h5>
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr><th>Drank</th><th>Status</th></tr>
+                            </thead>
+                            <tbody>
+                                @for (int i = 0; i < reservatie.Dranken.Count; i++)
+                                {
+                                    var d = reservatie.Dranken[i];
+                                    <tr>
+                                        <td>@d.ProductNaam</td>
+                                        <td>
+                                            <input type="hidden" name="items[@d.BestellingId].BestellingId" value="@d.BestellingId" />
+                                            <input type="hidden" name="items[@d.BestellingId].StatusId"
+                                                   id="drankStatus_@(r)_@(i)"
+                                                   value="@d.StatusId" />
+                                            <div class="btn-group">
+                                                <button type="button"
+                                                        class="btn btn-outline-success btn-status"
+                                                        data-target="drankStatus_@(r)_@(i)"
+                                                        data-value="3">
+                                                    Geserveerd
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+
+                </div>
+            </div>
+        </div>
+    }
+</div>

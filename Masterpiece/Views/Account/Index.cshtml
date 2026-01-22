@@ -1,0 +1,154 @@
+﻿@model List<AccountIndexViewModel>
+@{
+    ViewData["Title"] = "Accounts";
+}
+<div class="container-fluid">
+    <h2> Accounts</h2>
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="my-4">
+        <a asp-action="Create" class="text-success fs-3">
+            <i class="bi bi-plus-square"></i>
+        </a>
+    </div>
+    <div class="mb-3">
+        <label for="filterRole">Filter op rol:</label>
+        <select id="filterRole" class="form-select" style="width: auto; display:inline-block;">
+            <option value="">Alle</option>
+            @foreach (var role in ViewBag.Roles)
+            {
+                <option value="@role.Name">@role.Name</option>
+            }
+        </select>
+        <label for="filterZoeken" class="ms-3">Zoeken:</label>
+        <input type="text" id="filterZoeken" class="form-control" placeholder="voornaam, achternaam, email, land" style="width: 300px; display:inline-block;" />
+    </div>
+    <div class="table-responsive">
+        <table class="table table-striped align-middle" id="accountsTable">
+
+            <thead>
+                <tr>
+                    <th>@Html.DisplayNameFor(v => v[0].Voornaam)</th>
+                    <th>@Html.DisplayNameFor(v => v[0].Achternaam)</th>
+                    <th>@Html.DisplayNameFor(v => v[0].Adres)</th>
+                    <th>@Html.DisplayNameFor(v => v[0].Huisnummer)</th>
+                    <th>@Html.DisplayNameFor(v => v[0].Postcode)</th>
+                    <th>@Html.DisplayNameFor(v => v[0].Gemeente)</th>
+                    <th>@Html.DisplayNameFor(v => v[0].Land)</th>
+                    <th>@Html.DisplayNameFor(v => v[0].Email)</th>
+                    <th>@Html.DisplayNameFor(v => v[0].Rol)</th>
+                    <th colspan="2" class="text-center">Acties</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var vm in Model)
+                {
+                    <tr class="border border-2 py-1">
+                        <td class="col ps-2">
+                            @Html.DisplayFor(modelitem => vm.Voornaam)
+                        </td>
+                        <td class="col ps-4">
+                            @Html.DisplayFor(modelitem => vm.Achternaam)
+                        </td>
+                        <td class="col ps-4">
+                            @Html.DisplayFor(modelitem => vm.Adres)
+                        </td>
+                        <td class="col ps-4">
+                            @Html.DisplayFor(modelitem => vm.Huisnummer)
+                        </td>
+                        <td class="col ps-4">
+                            @Html.DisplayFor(modelitem => vm.Postcode)
+                        </td>
+                        <td class="col ps-4">
+                            @Html.DisplayFor(modelitem => vm.Gemeente)
+                        </td>
+                        <td class="col ps-4">
+                            @Html.DisplayFor(modelitem => vm.Land.Naam)
+                        </td>
+                        <td class="col ps-4">
+                            @Html.DisplayFor(modelitem => vm.Email)
+                        </td>
+                        <td class="col ps-4" data-role="@vm.Rol?.Name">
+                            @Html.DisplayFor(modelitem => vm.Rol.Name)
+                        </td>
+                        <td class="col ps-4">
+                            <a asp-action="Edit" class="text-warning" asp-route-id="@vm.Id">
+                                <i class="bi bi-pen fs-5"></i>
+                            </a>
+                        </td>
+                        <td class="col ps-4">
+                            <a class="text-danger" onclick="showDeleteModal('@vm.Id', '@vm.Voornaam ' + '@vm.Achternaam')">
+                                <i class="bi bi-trash fs-5"></i>
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+
+<!-- Delete modal  -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0">
+            <div class="modal-header border-bottom">
+                <h5 class="modal-title fw-bold" id="nameOfAccountToRemoveTitle">Account verwijderen</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="nameOfAccountToRemovebody">
+                Weet je zeker dat je dit account wilt verwijderen?
+            </div>
+            <div class="modal-footer border-top">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuleren</button>
+                <form asp-action="Delete" method="post" class="d-inline">
+                    <input type="hidden" name="id" value="" id="deleteAccountId" />
+                    <button type="submit" name="button" value="Verwijder" class="btn btn-danger">
+                        Verwijder
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            function filterTable() {
+                var roles = $('#filterRole').val();
+                var zoek = $('#filterZoeken').val().toLowerCase();
+
+                $('#accountsTable tbody tr').each(function() {
+                    var row = $(this);
+                    var rowRole = row.find('td[data-role]').data('role');
+                    var rowTekst = row.text().toLowerCase();
+
+                    var matchRole = roles == "" || rowRole == roles;
+                    var matchZoek = !zoek || rowTekst.includes(zoek);
+
+                    if (matchRole && matchZoek) {
+                        row.show();
+                    } else {
+                        row.hide();
+                    }
+                });
+            }
+
+            $('#filterRole').on('change', filterTable);
+            $('#filterZoeken').on('keyup', filterTable);
+        });
+    </script>
+    <script>
+        function showDeleteModal(accountId, accountName) {
+            document.getElementById('nameOfAccountToRemovebody').innerText = `Weet je zeker dat je dit account wilt verwijderen?\n\n${accountName}`;
+            document.getElementById('nameOfAccountToRemoveTitle').innerText = `${accountName} verwijderen`;
+            document.getElementById('deleteAccountId').value = accountId;
+
+            var deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            deleteModal.show();
+        }
+    </script>
+}

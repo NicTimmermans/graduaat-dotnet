@@ -1,0 +1,21 @@
+﻿
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var baseModel = Model as TafelBaseViewModel;
+    var activeMain = baseModel?.ActiveMain ?? "Tafels";
+    ViewData["ActiveMain"] = activeMain;
+}
+
+<div class="container mt-4">
+    @await Html.PartialAsync("~/Views/Tafel/_TafelTopNav.cshtml")
+
+    <div class="mt-3">
+        @RenderBody()
+    </div>
+</div>
+
+@section Scripts {
+    @RenderSection("Scripts", required: false)
+}

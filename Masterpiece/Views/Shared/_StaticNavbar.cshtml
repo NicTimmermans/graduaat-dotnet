@@ -1,0 +1,169 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject UserManager<CustomUser> UserManager
+
+<nav class="navbar navbar-expand-lg navbar-dark masterpiece-main-navbar-static">
+    <div class="container">
+        <a class="navbar-brand alex gold-soft"
+           asp-area=""
+           asp-controller="Home"
+           asp-action="Index">
+            <img src="/img/logo.png" alt="Masterpiece logo" />
+        </a>
+
+        <button class="navbar-toggler me-1" type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#mainNav"
+                aria-controls="mainNav"
+                aria-expanded="false"
+                aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="mainNav">
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0 twinkle me-5">
+                @if (User.IsInRole("Kok"))
+                {
+                    <li class="nav-item ms-lg-3">
+                        <a class="nav-link gold-soft"
+                           asp-controller="Product" asp-action="Index">
+                            Gerechten
+                        </a>
+                    </li>
+                }
+                @if (User.IsInRole("Ober"))
+                {
+                    <li class="nav-item ms-lg-3">
+                        <a class="nav-link gold-soft"
+                           asp-controller="Product" asp-action="Index">
+                            Dranken
+                        </a>
+                    </li>
+                }
+                @if (User.IsInRole("Eigenaar"))
+                {
+                    <li class="nav-item ms-lg-3">
+                        <a class="nav-link gold-soft"
+                           asp-controller="Product" asp-action="Index">
+                            Producten
+                        </a>
+                    </li>
+                }
+                <li class="nav-item ms-lg-3">
+                    <a asp-area="" asp-controller="Menu" asp-action="Index"
+                       class="nav-link gold-soft">
+                        Menu
+                    </a>
+                </li>
+
+                <li class="nav-item ms-lg-3">
+                    <a asp-area="" asp-controller="Reservatie" asp-action="Reserveren"
+                       class="nav-link gold-soft">
+                        Reserveren
+                    </a>
+                </li>
+                <li class="nav-item ms-lg-3">
+                    <a class="nav-link gold-soft"
+                       asp-controller="Galerij" asp-action="Index">
+                        Galerij
+                    </a>
+                </li>
+
+                <li class="nav-item ms-lg-3">
+                    <a class="nav-link" href="/Home/Index#about-mini">
+                        Over ons
+                    </a>
+                </li>
+
+                <li class="nav-item ms-lg-3">
+                    <a class="nav-link" href="/Home/Index#contact-mini">
+                        Contact
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="account-float ms-5">
+    <button type="button"
+            class="bg-transparent border-0 p-0 d-flex align-items-center position-relative account-toggle account-icon"
+            aria-expanded="false"
+            aria-controls="accountPanel">
+
+        <i class="bi bi-person-circle fs-4 @(User.Identity.IsAuthenticated ? "gold" : "text-white")"></i>
+
+        @if (User.Identity.IsAuthenticated)
+        {
+            <span class="account-counter">0</span>
+        }
+    </button>
+
+    <div id="accountPanel" class="account-panel shadow-lg">
+
+        @if (!User.Identity.IsAuthenticated)
+        {
+            <div class="account-panel-header twinkle gold">
+                Login om te reserveren
+            </div>
+            <div class="account-panel-body text-white">
+                <a asp-controller="Account" asp-action="Login"
+                   class="btn btn-sm w-100 mb-2 account-btn text-white">
+                    Login
+                </a>
+                <a asp-controller="Account" asp-action="Create"
+                   class="btn btn-sm w-100 account-btn text-white">
+                    Registreer
+                </a>
+            </div>
+        }
+        else if (User.IsInRole("Eigenaar"))
+        {
+            <div class="account-panel-header twinkle gold">
+                Admin
+            </div>
+            <div class="account-panel-body raleway mx-auto">
+                <a asp-controller="Admin" asp-action="Index"
+                   class="btn btn-sm w-100 mb-2 account-btn text-white">
+                    Beheer
+                </a>
+                <a href="#" class="btn btn-outline-danger js-logout-trigger">
+                    Afmelden
+                </a>
+            </div>
+        }
+        else
+        {
+            var currentUserId = UserManager.GetUserId(User);
+
+            <div class="account-panel-header twinkle gold">
+                Welkom
+            </div>
+            <div class="account-panel-body raleway mx-auto">
+                <a asp-controller="Account" asp-action="Dashboard"
+                   asp-route-id="@currentUserId"
+                   class="btn btn-sm w-100 mb-2 account-btn text-white">
+                    Mijn account
+                </a>
+                @* Nieuwe links voor Ober en Kok *@
+                 @if (User.IsInRole("Ober"))
+                    { 
+                    <a asp-controller="Admin" asp-action="Index"
+                       class="btn btn-sm w-100 mb-2 account-btn text-white">
+                        Beheer
+                    </a>
+                    } 
+                 @if (User.IsInRole("Kok"))
+                {
+                    <a asp-controller="Admin" asp-action="Index"
+                       class="btn btn-sm w-100 mb-2 account-btn text-white">
+                        Beheer
+                    </a>
+                 } 
+                
+                <a href="#" class="btn btn-outline-danger js-logout-trigger">
+                    Afmelden
+                </a>
+            </div>
+        }
+    </div>
+</div>

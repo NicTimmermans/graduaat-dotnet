@@ -1,0 +1,81 @@
+﻿@model OldTafelToewijzenReservatieViewModel
+
+@{
+    ViewData["Title"] = "Tafels toewijzen";
+}
+
+<h2 class="twinkle gold-soft mb-3">Tafels toewijzen</h2>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <h5 class="card-title mb-2">@Model.KlantNaam</h5>
+        <p class="card-text mb-1">
+            <strong>Datum:</strong> @Model.Datum?.ToString("dd/MM/yyyy")<br />
+            <strong>Tijdslot:</strong> @Model.TijdslotNaam<br />
+            <strong>Aantal personen:</strong> @Model.AantalPersonen
+        </p>
+        @if (!string.IsNullOrWhiteSpace(Model.Opmerking))
+        {
+            <p class="card-text">
+                <strong>Opmerking:</strong> @Model.Opmerking
+            </p>
+        }
+    </div>
+</div>
+
+@if (!string.IsNullOrEmpty(Model.WachttijdMelding))
+{
+    <div class="alert alert-warning">
+        @Model.WachttijdMelding
+    </div>
+}
+
+@if (Model.BeschikbareTafels.Any())
+{
+    <form asp-action="ToewijzenReservatie" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="ReservatieId" />
+
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Tafel</th>
+                    <th>Capaciteit</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < Model.BeschikbareTafels.Count; i++)
+                {
+                    var tafel = Model.BeschikbareTafels[i];
+                    <tr>
+                        <td>
+                            <input type="checkbox"
+                                   name="GeselecteerdeTafelIds"
+                                   value="@tafel.Id" />
+                        </td>
+                        <td>@tafel.TafelNummer</td>
+                        <td>@tafel.AantalPersonen</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <button type="submit" class="btn btn-primary">
+            Bevestig tafeltoewijzing
+        </button>
+        <a asp-action="Toewijzen"
+           asp-route-datum="@(Model.Datum?.ToString("yyyy-MM-dd") ?? string.Empty)"
+           class="btn btn-secondary ms-2">
+            Annuleren
+        </a>
+    </form>
+}
+else
+{
+    <a asp-action="Toewijzen"
+       asp-route-datum="@(Model.Datum?.ToString("yyyy-MM-dd") ?? string.Empty)"
+       class="btn btn-secondary">
+        Terug naar overzicht
+    </a>
+}

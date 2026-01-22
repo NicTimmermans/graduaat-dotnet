@@ -1,0 +1,246 @@
+﻿@model LoggingToDbViewModel
+
+@{
+    ViewBag.Title = "Log Beheer";
+}
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Log Beheer</h2>
+    </div>
+    
+    <!-- Filter Buttons -->
+    <div class="mb-4">
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-outline-primary @(Model.ActiveFilter == "all" ? "active" : "")" data-filter="all">All</button>
+            <button type="button" class="btn btn-outline-primary @(Model.ActiveFilter == "reservatie" ? "active" : "")" data-filter="Reservatie">Reservatie</button>
+            <button type="button" class="btn btn-outline-primary @(Model.ActiveFilter == "bestelling" ? "active" : "")" data-filter="bestelling">Bestelling</button>
+            <button type="button" class="btn btn-outline-primary @(Model.ActiveFilter == "afrekenen" ? "active" : "")" data-filter="afrekenen">Afrekenen</button>
+            <button type="button" class="btn btn-outline-primary @(Model.ActiveFilter == "enquete" ? "active" : "")" data-filter="enquete">Enquete</button>
+            
+        </div>
+    </div>
+    
+    <div class="mb-3">
+        <p>
+            Later kunnen we ook nog bijhouden of mails verstuurd worden ofniet. Maar dit is niet iets super simpel en is meer tijd voor nodig. 
+        </p>
+    </div>
+    
+    
+    
+
+    <!-- Logs Table -->
+    <div class="card">
+        <div class="card-body">
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Datum & Tijd</th>
+                    <th>Gebruiker</th>
+                    <th>Actie</th>
+                    <th>Details</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody id="logsTableBody">
+                @foreach (var log in Model.Logs)
+                {
+                    <tr data-type="@log.LogType.Trim().ToLower()">
+                        <td>
+                            <span class="badge bg-@GetBadgeColor(log.LogType)">@log.LogType</span>
+                        </td>
+                        <!-- Status Badge in de tabel -->
+                        <td>
+                            <span class="badge bg-@GetStatusBadgeColor(log.LogStatus)">
+                                @if (log.LogStatus?.ToLower() == "Success")
+                                {
+                                    <i class="bi bi-check-circle me-1 text-white"></i>
+                                }
+                                else if (log.LogStatus?.ToLower() == "error")
+                                {
+                                    <i class="bi bi-x-circle me-1 text-white"></i>
+                                }
+                                else if (log.LogStatus?.ToLower() == "warning")
+                                {
+                                    <i class="bi bi-exclamation-triangle me-1 text-white"></i>
+                                }
+                                @log.LogStatus
+                            </span>
+
+                        </td>
+                        
+                        
+                        
+                        <td>@log.Date.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>@log.UserName</td>
+                        <td>@log.LogType</td>
+                        <td>@log.Message</td>
+                        <td>
+                            <a class="text-danger" style="cursor: pointer;"
+                               onclick="showDeleteModal('@log.Id', '@log.LogType', '@log.Message.Replace("'", "\\'")', '@log.Date' , '@log.UserName') ">
+                                <i class="bi bi-trash fs-5"></i>
+                            </a>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-secondary"
+                                    onclick="showLogDetails('@log.Id')">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Log Verwijderen
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-3">Weet je zeker dat je deze log wilt verwijderen?</p>
+                <div class="alert alert-warning">
+                    <strong>Type:</strong> <span id="deleteLogType"></span><br>
+                    <strong>Details:</strong> <span id="deleteLogDetails"></span><br>
+                    <strong>Datum:</strong> <span id="deleteLogDate"></span><br>
+                    <strong>Username:</strong> <span id="deleteLogUserName"></span>
+                </div>
+                <p class="text-muted small mb-0">Deze actie kan niet ongedaan worden gemaakt.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuleren</button>
+                <form id="deleteForm" method="post" asp-action="LogVerwijderen" style="display: inline;">
+                    <input type="hidden" name="activeFilter" id="deleteActiveFilter" value="@Model.ActiveFilter" />
+                    <input type="hidden" name="id" id="deleteLogId" />
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash me-1"></i>
+                        Verwijderen
+                    </button>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Log Details Modal -->
+<div class="modal fade" id="logDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Log Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="logDetailsContent">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Sluiten</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    string GetBadgeColor(string type)
+    {
+        return type.ToLower() switch
+        {
+            "reservatie" => "primary",
+            "bestelling" => "success",
+            "afrekenen" => "warning",
+            "enquete" => "info",
+            "mail" => "secondary",
+            _ => "dark"
+        };
+    }
+}
+
+@functions {
+    string GetStatusBadgeColor(string status)
+    {
+        return status.ToLower() switch
+        {
+            "success" => "success",
+            "error" => "danger",
+            "warning" => "warning",
+            _ => "secondary"
+        };
+    }
+}
+
+<script>
+
+    const deleteActiveFilterInput = document.getElementById('deleteActiveFilter');
+
+    document.querySelectorAll('[data-filter]').forEach(button => {
+        button.addEventListener('click', function() {
+            // Update active state
+            document.querySelectorAll('[data-filter]').forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+
+            const filter = this.dataset.filter.toLowerCase();
+
+            // Pas filter client-side toe
+            const rows = document.querySelectorAll('#logsTableBody tr');
+            rows.forEach(row => {
+                const type = (row.dataset.type || '').toLowerCase();
+                if (filter === 'all' || type === filter) {
+                    row.style.display = 'table-row';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            // Update hidden input zodat server weet welke filter actief is
+            deleteActiveFilterInput.value = filter;
+        });
+    });
+        
+    //On page load active filter juist inladen.
+    const activeFilter = '@Model.ActiveFilter';
+    const rows = document.querySelectorAll('#logsTableBody tr');
+
+    rows.forEach(row => {
+        const type = (row.dataset.type || '').toLowerCase();
+        if (activeFilter === 'all' || type === activeFilter) {
+            row.style.display = 'table-row';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+
+    function showDeleteModal(logId, logType, logDetails, logDate, logUserName) {
+        // Set modal content
+        document.getElementById('deleteLogId').value = logId;
+        document.getElementById('deleteLogType').textContent = logType;
+        document.getElementById('deleteLogDetails').textContent = logDetails;
+        document.getElementById('deleteLogDate').textContent = logDate;
+        document.getElementById('deleteLogUserName').textContent = logUserName;
+
+        // Show modal
+        const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        modal.show();
+    }
+
+    function showLogDetails(logId) {
+        //Hierin kan later eventueel een duidelijker boodschap uitgewerkt worden dient dit nodig te zijn.
+        const modal = new bootstrap.Modal(document.getElementById('logDetailsModal'));
+        document.getElementById('logDetailsContent').innerHTML = '<p>Details voor log ' + logId + '</p>';
+        modal.show();
+    }
+    
+    
+
+</script>

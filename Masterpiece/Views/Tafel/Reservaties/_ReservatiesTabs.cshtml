@@ -1,0 +1,16 @@
+﻿@model TafelIndexReservatieViewModel
+@{
+    var sub = Model.ActiveSub ?? "Toewijzen";
+}
+
+<div class="subnav mb-3">
+    <a asp-controller="Tafel" asp-action="TafelToewijzenReservatie"
+       class="subnav-item @(sub == "Toewijzen" ? "active" : "")">
+        Toewijzen
+    </a>
+
+    <a asp-controller="Tafel" asp-action="TafelOverzichtReservatie"
+       class="subnav-item @(sub == "Overzicht" ? "active" : "")">
+        Overzicht
+    </a>
+</div>

@@ -1,0 +1,148 @@
+﻿@model List<OldTafelToewijzenReservatieViewModel>
+
+@{
+    ViewData["Title"] = "Tafels toewijzen";
+    var geselecteerdeDatum = ViewBag.Datum as string ?? DateTime.Today.ToString("yyyy-MM-dd");
+    bool alleenZonderTafel = ViewBag.AlleenZonderTafel ?? false;
+}
+
+<h2 class="twinkle gold-soft mb-3">Tafels toewijzen</h2>
+
+<form asp-action="Toewijzen" method="get" class="row g-2 mb-3 align-items-end">
+    <div class="col-auto">
+        <label for="datum" class="form-label">Datum</label>
+        <input type="date"
+               id="datum"
+               name="datum"
+               value="@geselecteerdeDatum"
+               class="form-control" />
+    </div>
+
+    <div class="col-auto form-check ms-3">
+        <input class="form-check-input"
+               type="checkbox"
+               id="alleenZonderTafel"
+               name="alleenZonderTafel"
+               value="true"
+        @(alleenZonderTafel ? "checked" : "") />
+        <label class="form-check-label" for="alleenZonderTafel">
+            Enkel reservaties zonder tafel
+        </label>
+    </div>
+
+    <div class="col-auto">
+        <button type="submit" class="btn btn-primary">Filter</button>
+    </div>
+
+    <div class="col-auto ms-auto">
+        <a asp-action="Index"
+           asp-route-tab="beheren"
+           class="btn btn-outline-secondary me-2">
+            Tafelbeheer
+        </a>
+
+        <a asp-controller="Reservatie"
+           asp-action="Reserveren"
+           class="btn btn-outline-secondary">
+            Nieuwe reservatie
+        </a>
+    </div>
+</form>
+
+@if (TempData["ToewijzenSuccess"] != null)
+{
+    <div class="alert alert-success">@TempData["ToewijzenSuccess"]</div>
+}
+@if (TempData["CheckInSuccess"] != null)
+{
+    <div class="alert alert-success">@TempData["CheckInSuccess"]</div>
+}
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        Geen reservaties gevonden voor deze datum.
+    </div>
+}
+else
+{
+    <table class="table table-striped align-middle">
+        <thead>
+            <tr>
+                <th>Tafel(s)</th>
+                <th>Tijdslot</th>
+                <th>Klant</th>
+                <th>Aantal</th>
+                <th>Status</th>
+                <th class="text-end">Acties</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var r in Model)
+            {
+                var status =
+                !r.HeeftTafel ? "Zonder tafel" :
+                r.IsAanwezig ? "Bezet" : "Gereserveerd";
+
+                <tr>
+                    <td>
+                        @(r.HeeftTafel ? string.Join(", ", r.TafelNummers) : "-")
+                    </td>
+                    <td>
+                        @r.Datum?.ToString("dd/MM/yyyy")<br />
+                        <small class="text-muted">@r.TijdslotNaam</small>
+                    </td>
+                    <td>
+                        @r.KlantNaam<br />
+                        @if (!string.IsNullOrWhiteSpace(r.KlantEmail))
+                        {
+                            <small class="text-muted">@r.KlantEmail</small>
+                        }
+                    </td>
+                    <td>@r.AantalPersonen</td>
+                    <td>@status</td>
+                    <td class="text-end">
+                        @if (!r.HeeftTafel)
+                        {
+                            <a asp-action="ToewijzenReservatie"
+                               asp-route-reservatieId="@r.ReservatieId"
+                               class="btn btn-sm btn-primary me-1">
+                                Tafels toewijzen
+                            </a>
+                        }
+                        else
+                        {
+                            <a asp-action="ToewijzenReservatie"
+                               asp-route-reservatieId="@r.ReservatieId"
+                               class="btn btn-sm btn-outline-secondary me-1">
+                                Aanpassing
+                            </a>
+                        }
+
+                        @if (r.HeeftTafel && !r.IsAanwezig)
+                        {
+                            <form asp-action="CheckIn"
+                                  method="post"
+                                  class="d-inline">
+                                <input type="hidden" name="reservatieId" value="@r.ReservatieId" />
+                                <button type="submit" class="btn btn-sm btn-success">
+                                    Check-in
+                                </button>
+                            </form>
+                        }
+
+                        @if (r.HeeftTafel && r.IsAanwezig)
+                        {
+                            <a asp-controller="Bestelling"
+                               asp-action="Index"
+                               asp-route-reservatieId="@r.ReservatieId"
+                               class="btn btn-sm btn-outline-primary ms-1">
+                                Bestellen
+                            </a>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

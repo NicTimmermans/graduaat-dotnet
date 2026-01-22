@@ -1,0 +1,9 @@
+﻿using System.Collections.Generic;
+
+namespace Restaurant.ViewModels.Tafel.Shared
+{
+    public class TafelGrondplanBeheerViewModel : TafelBaseViewModel
+    {
+        public List<TafelTileViewModel> Tafels { get; set; } = new();
+    }
+}

@@ -1,0 +1,89 @@
+﻿@using Restaurant.ViewModels.Overzicht
+@model OverzichtDashboardViewModel
+
+@{
+    Layout = null;
+    var f = Model.Filter;
+}
+
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Rapport</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+</head>
+<body class="p-4">
+    <h3>Rapport: @f.Type</h3>
+    <div class="text-muted mb-3">
+        Periode: @f.Van.ToString("dd/MM/yyyy") — @f.Tot.ToString("dd/MM/yyyy")
+    </div>
+
+    @if (f.Type == OverzichtType.Reservaties)
+    {
+        <p><strong>Totaal reservaties:</strong> @Model.Reservaties.TotaalReservaties</p>
+        <p><strong>Totaal personen:</strong> @Model.Reservaties.TotaalPersonen</p>
+
+        <table class="table table-sm table-bordered">
+            <thead>
+                <tr><th>Datum</th><th>Tijdslot</th><th>Klant</th><th>Aantal</th><th>Tafels</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var r in Model.Reservaties.Rows)
+                {
+                    <tr>
+                        <td>@r.Datum.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>@r.TijdslotNaam</td>
+                        <td>@r.KlantNaam</td>
+                        <td>@r.AantalPersonen</td>
+                        <td>@r.Tafels</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else if (f.Type == OverzichtType.Omzet)
+    {
+        <p><strong>Totaal omzet:</strong> @Model.Omzet.TotaalOmzet €</p>
+
+        <table class="table table-sm table-bordered">
+            <thead>
+                <tr><th>Datum</th><th>Reservatie</th><th>Tafels</th><th class="text-end">Bedrag</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var o in Model.Omzet.Rows)
+                {
+                    <tr>
+                        <td>@o.Datum.ToString("dd/MM/yyyy")</td>
+                        <td>#@o.ReservatieId</td>
+                        <td>@o.Tafels</td>
+                        <td class="text-end">@o.Bedrag €</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p><strong>Aantal feedbacks:</strong> @Model.Feedback.AantalFeedbacks</p>
+        <p><strong>Gemiddelde score:</strong> @Model.Feedback.GemiddeldeScore.ToString("0.00")</p>
+
+        <table class="table table-sm table-bordered">
+            <thead>
+                <tr><th>Datum</th><th>Klant</th><th>Sterren</th><th>Opmerking</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var x in Model.Feedback.Rows)
+                {
+                    <tr>
+                        <td>@x.Datum.ToString("dd/MM/yyyy")</td>
+                        <td>@x.KlantNaam</td>
+                        <td>@x.Sterren</td>
+                        <td>@x.Opmerking</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</body>
+</html>

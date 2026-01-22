@@ -1,0 +1,150 @@
+﻿.masterpiece-main-navbar-static {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    background: rgba(43, 80, 113, 0.92);
+    border-bottom: 1px solid rgba(228, 239, 247, 0.25);
+    z-index: 2000;
+    padding: 0 3rem;
+    overflow: visible;
+}
+
+    .masterpiece-main-navbar-static .navbar-brand {
+        padding-top: 0;
+        padding-bottom: 0;
+        margin-top: 0;
+        margin-bottom: 0;
+        display: flex;
+        align-items: center;
+    }
+
+        .masterpiece-main-navbar-static .navbar-brand img {
+            display: block;
+            height: 40px;
+        }
+
+    .masterpiece-main-navbar-static .nav-link {
+        font-size: 1.05rem;
+        color: #E4EFF7 !important;
+        text-decoration: none !important;
+        transition: 0.2s ease;
+    }
+
+        .masterpiece-main-navbar-static .nav-link:hover,
+        .masterpiece-main-navbar-static .nav-link:focus {
+            color: goldenrod !important;
+            text-decoration: underline !important;
+            text-decoration-color: goldenrod !important;
+        }
+
+.account-float {
+    position: fixed;
+    top: 0.9rem;
+    right: 1rem;
+    z-index: 3000;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.account-icon {
+    opacity: 0.9;
+    transition: opacity .2s ease, transform .2s ease;
+}
+
+    .account-icon:hover {
+        opacity: 1;
+        transform: translateY(-1px);
+        color: goldenrod !important;
+    }
+
+.account-panel,
+.admin-panel {
+    position: absolute;
+    top: calc(100% + 0.6rem);
+    right: 0;
+    width: 220px;
+    background: rgba(43, 80, 113, 0.98);
+    border: 1px solid rgba(228,239,247,0.25);
+    border-radius: 14px;
+    overflow: hidden;
+    display: none;
+}
+
+    .account-panel.show,
+    .admin-panel.show {
+        display: block;
+    }
+
+.account-panel-header,
+.admin-panel-header {
+    padding: 0.75rem 0.9rem;
+    font-size: 0.95rem;
+    color: #E4EFF7;
+    border-bottom: 1px solid rgba(228,239,247,0.18);
+    background: rgba(31, 58, 74, 0.9);
+}
+
+.account-panel-body,
+.admin-panel-body {
+    padding: 0.9rem;
+}
+
+.account-counter {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: goldenrod;
+    color: black;
+    font-size: 0.65rem;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 999px;
+}
+
+@media (max-width: 576px) {
+    .account-float {
+        top: 0.6rem;
+        right: 0.6rem;
+        background: rgba(43, 80, 113, 0.92);
+        padding: 0.25rem 0.6rem;
+        border-radius: 12px;
+    }
+
+    .masterpiece-main-navbar-static {
+        padding: 0 1rem;
+    }
+
+    .navbar-toggler {
+        position: fixed;
+        top: 0.6rem;
+        right: 3.2rem;
+        z-index: 3100;
+        margin-right: 0;
+    }
+
+    .masterpiece-main-navbar-static .navbar-collapse {
+        position: fixed;
+        top: 64px;
+        left: 0;
+        right: 0;
+        width: 100%;
+        background: rgba(43, 80, 113, 0.96);
+        padding: 0.75rem 1.5rem;
+        z-index: 2500;
+    }
+
+    .masterpiece-main-navbar-static .navbar-nav {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+
+    .masterpiece-main-navbar-static .nav-link {
+        line-height: 1.4;
+    }
+}

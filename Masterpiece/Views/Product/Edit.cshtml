@@ -1,0 +1,121 @@
+﻿@model ProductEditViewModel
+@{
+    ViewData["Title"] = "Edit";
+}
+<p></p>
+@if (User.IsInRole("Ober"))
+{
+    <h1>Drankje wijzigen</h1>
+}
+else if (User.IsInRole("Kok"))
+{
+    <h1>Gerecht wijzigen</h1>
+}
+else
+{
+    <h1>Product wijzigen</h1>
+}
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit" enctype="multipart/form-data" id="editForm">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group my-2">
+                <label asp-for="Naam" class="control-label"></label>
+                <input asp-for="Naam" class="form-control" />
+                <span asp-validation-for="Naam" class="text-danger"></span>
+            </div>
+            <div class="form-group my-2">
+                <label asp-for="Beschrijving" class="control-label"></label>
+                <input asp-for="Beschrijving" class="form-control" />
+                <span asp-validation-for="Beschrijving" class="text-danger"></span>
+            </div>
+            <div class="form-group my-2">
+                <label asp-for="AllergenenInfo" class="control-label"></label>
+                <input asp-for="AllergenenInfo" class="form-control" />
+                <span asp-validation-for="AllergenenInfo" class="text-danger"></span>
+            </div>
+            <div class="form-group my-2">
+                <label asp-for="Actief" class="control-label"></label>
+                <input asp-for="Actief" type="checkbox" class="form-check-input" />
+                <span asp-validation-for="Actief" class="text-danger"></span>
+            </div>
+            <div class="form-group my-2">
+                <label asp-for="IsSuggestie" class="control-label"></label>
+                <input asp-for="IsSuggestie" type="checkbox" class="form-check-input" />
+                <span asp-validation-for="IsSuggestie" class="text-danger"></span>
+            </div>
+            <div class="form-group my-2">
+                <label asp-for="Prijs" class="control-label"></label>
+                <input asp-for="Prijs" type="number" class="form-control" />
+                <span asp-validation-for="Prijs" class="text-danger"></span>
+            </div>
+            <div class="form-group my-2">
+                <select asp-for="CategorieId" asp-items="Model.CategorieList"></select>
+            </div>
+            <div class="form-group my-2">
+                <label asp-for="Afbeelding" class="control-label"></label>
+                <input asp-for="Afbeelding" type="file" class="form-control" />
+            </div>
+
+            <div class="form-group my-2">
+                <button type="button" id="checkSubmit" name="button" value="Wijzigen" class="btn bg-blue-deep gold raleway border-gold border border-1">
+                    Wijzigen
+                </button>
+                <a asp-controller="Product" asp-action="Index" class="btn bg-blue-deep gold raleway border-gold border border-1">Terug</a>
+            </div>
+        </form>
+    </div>
+    <div class="col-md-4">
+        <img src="@Model.AfbeeldingUrl" class="card-img-fixed rounded mx-auto" alt="@Model.Naam" />
+    </div>
+</div>
+<!-- Warning modal  -->
+<div>
+    <div class="modal fade" id="warningModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0">
+                <div class="modal-header border-bottom">
+                    <h5 class="modal-title fw-bold" id="nameOfProductToChangeTitle">Product wijzigen</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="nameOfProductToChangeBody">
+                    Weet je zeker dat je dit product wilt wijzigen?
+                </div>
+                <div class="modal-footer border-top">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuleren</button>
+                    <button type="button" id="confirmSubmit" name="button" value="Wijzigen" class="btn btn-warning">
+                        Wijzigen
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById("checkSubmit").addEventListener("click", function () {
+        console.log("@Model.ExistsInBestelling")
+        showWaringOrSubmit("@Model.ExistsInBestelling", "@Model.Naam");
+	});
+    document.getElementById("confirmSubmit").addEventListener("click", function () {
+        document.getElementById("editForm").submit();
+    });
+    function showWaringOrSubmit(existsInBestelling, productNaam) {
+        if (existsInBestelling == "True"){
+            document.getElementById('nameOfProductToChangeBody').innerText = `Weet je zeker dat je dit product wilt wijzigen?\n\nEr zijn nog bestellingen met dit product!`;
+            document.getElementById('nameOfProductToChangeTitle').innerText = `${productNaam} wijzigen`;
+
+            var warningModal = new bootstrap.Modal(document.getElementById('warningModal'));
+            warningModal.show();
+        }
+        else{
+            document.getElementById("editForm").submit();
+        }
+    }
+</script>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

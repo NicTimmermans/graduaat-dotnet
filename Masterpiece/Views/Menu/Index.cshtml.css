@@ -1,0 +1,49 @@
+﻿/* ========= FULL-BLEED WRAPPER ========= */
+/* Break out of the global .container in _Layout */
+.reserveer-full-bleed {
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+    width: 100vw; /* echte viewport-breedte */
+}
+
+/* ========= RESERVEER BANNER ========= */
+
+.reserveer-section {
+    position: relative;
+    color: #E4EFF7;
+    text-align: center;
+    /* zelfde achtergrond als op de landing */
+    background: url('/img/tree.jpg') center/cover no-repeat fixed;
+}
+
+.reserveer-overlay {
+    background: linear-gradient(to bottom, rgba(5, 11, 17, 0.75), rgba(43, 80, 113, 0.78));
+}
+
+/* CTA-stijl kopie van je landing (mag dubbel zijn, je zei dat dat ok is) */
+.glass-cta-btn {
+    display: inline-block;
+    padding: 0.65rem 2.6rem;
+    border-radius: 18px;
+    border: 1.8px solid rgba(190, 121, 40, 0.45);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.06));
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4), inset 0 0 12px rgba(255, 255, 255, 0.25);
+    color: #E4EFF7;
+    text-decoration: none;
+    font-size: 1.05rem;
+    letter-spacing: 0.06em;
+    transition: background 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease, color 0.25s ease;
+}
+
+    .glass-cta-btn:hover,
+    .glass-cta-btn:focus-visible {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.12));
+        box-shadow: 0 12px 45px rgba(0, 0, 0, 0.55), inset 0 0 16px rgba(255, 255, 255, 0.32), 0 0 12px rgba(190, 121, 40, 0.55);
+        transform: translateY(-2px);
+        color: #ffffff;
+    }

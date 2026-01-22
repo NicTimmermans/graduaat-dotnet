@@ -1,0 +1,71 @@
+﻿@model ProductCreateViewModel
+@{
+    ViewData["Title"] = "Create";
+}
+<p></p>
+@if (User.IsInRole("Ober"))
+{
+    <h1>Nieuw drankje aanmaken</h1>
+}
+else if (User.IsInRole("Kok"))
+{
+    <h1>Nieuw gerecht aanmaken</h1>
+}
+else
+{
+    <h1>Nieuw product aanmaken</h1>
+}
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group my-2">
+                <label asp-for="Naam" class="control-label"></label>
+                <input asp-for="Naam" class="form-control" />
+                <span asp-validation-for="Naam" class="text-danger"></span>
+            </div>
+            <div class="form-group my-2">
+                <label asp-for="Beschrijving" class="control-label"></label>
+                <input asp-for="Beschrijving" class="form-control" />
+                <span asp-validation-for="Beschrijving" class="text-danger"></span>
+            </div>
+            <div class="form-group my-2">
+                <label asp-for="AllergenenInfo" class="control-label"></label>
+                <input asp-for="AllergenenInfo" class="form-control" />
+                <span asp-validation-for="AllergenenInfo" class="text-danger"></span>
+            </div>
+            <div class="form-group my-2">
+                <label asp-for="Actief" class="control-label"></label>
+                <input asp-for="Actief" type="checkbox" class="form-check-input" />
+                <span asp-validation-for="Actief" class="text-danger"></span>
+            </div>
+            <div class="form-group my-2">
+                <label asp-for="IsSuggestie" class="control-label"></label>
+                <input asp-for="IsSuggestie" type="checkbox" class="form-check-input" />
+                <span asp-validation-for="IsSuggestie" class="text-danger"></span>
+            </div>
+            <div class="form-group my-2">
+                <label asp-for="Prijs" class="control-label"></label>
+                <input asp-for="Prijs" type="number" class="form-control" />
+                <span asp-validation-for="Prijs" class="text-danger"></span>
+            </div>
+            <div class="form-group my-2">
+                <select asp-for="CategorieId" asp-items="Model.CategorieList"></select>
+            </div>
+
+            <div class="form-group my-2">
+                <input type="submit" value="Aanmaken" class="btn bg-blue-deep gold raleway border-gold border border-1" />
+                <a asp-controller="Product" asp-action="Index" class="btn bg-blue-deep gold raleway border-gold border border-1">Terug</a>
+            </div>
+        </form>
+    </div>
+
+</div>
+<div>
+</div>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -1,0 +1,169 @@
+﻿@model MenuListViewModel
+@inject Microsoft.AspNetCore.Identity.UserManager<Restaurant.Models.CustomUser> UserManager
+@{
+	ViewData["Title"] = "Menu";
+	bool magBestellen = ViewBag.MagBestellen ?? false;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+	<h1>Menu</h1>
+
+	@if (magBestellen)
+	{
+		<div class="d-flex align-items-center gap-2">
+			<a href="@Url.Action("Index", "Bestelling", new { reservatieId = (ViewBag.ReservatieId ?? 3), viewMode = 1 })"
+			   class="btn btn-success position-relative">
+				<i class="bi bi-cart-fill" style="font-size: 1.2rem;"></i>
+				<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger text-white">
+					@ViewBag.CartCount
+				</span>
+			</a>
+
+			<a href="@Url.Action("Index", "Bestelling", new { reservatieId = (ViewBag.ReservatieId ?? 3), viewMode = 2 })"
+			   class="btn btn-danger position-relative d-flex align-items-center gap-2">
+				<i class="bi bi-cart-fill" style="font-size: 1.2rem;"></i>
+				<span>Totaal overzicht</span>
+
+				<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger text-white">
+					@ViewBag.CartCountFull
+				</span>
+			</a>
+		</div>
+	}
+</div>
+
+<hr />
+<h2>Suggesties</h2>
+<div class="row row-cols-1 row-cols-md-3 g-3">
+	@foreach (var product in Model.Producten)
+	{
+		if(product.IsSuggestie)
+		{
+			<div class="col">
+				<div class="card h-100 text-end">
+					<img src="@product.AfbeeldingUrl" class="card-img-fixed" alt="@product.Naam">
+					<div class="card-body d-flex flex-column justify-content-between">
+						<div class="text-start">
+							<h5 class="card-title">@product.Naam</h5>
+							<p class="card-text">@product.Beschrijving</p>
+							<p class="text-muted">@product.AllergenenInfo</p>
+						</div>
+						<div class="d-flex justify-content-between align-items-center mt-2">
+							<span class="fw-bold">@product.Prijs?.ToString("0.00") €</span>
+							@if (magBestellen)
+							{
+								<button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#myModal" data-item-name="@product.Naam" data-item-id="@product.Id">
+									Toevoegen
+								</button>
+							}
+						</div>
+					</div>
+				</div>
+			</div>
+		}
+	}
+</div>
+
+@* <hr> *@
+
+@foreach (var typeGroup in Model.Producten.GroupBy(p => p.CategorieTypeNaam))
+{
+	var typeSample = typeGroup.First();
+	if (typeSample.CategorieTypeActief)
+	{
+		<h2 class="mt-4 mb-3">@typeSample.CategorieTypeNaam</h2>
+	}
+	<hr>
+	foreach (var catGroup in typeGroup.GroupBy(p => p.CategorieNaam))
+	{
+		var catSample = catGroup.First();
+		if (catSample.CategorieActief)
+		{
+			<h3 class="mt-3 mb-2">@catSample.CategorieNaam</h3>
+		}
+
+		<div class="row row-cols-1 row-cols-md-3 g-3">
+			@foreach (var product in catGroup)
+			{
+				<div class="col">
+					<div class="card h-100 text-end">
+						<img src="@product.AfbeeldingUrl" class="card-img-fixed" alt="@product.Naam">
+						<div class="card-body d-flex flex-column justify-content-between">
+							<div class="text-start">
+								<h5 class="card-title">@product.Naam</h5>
+								<p class="card-text">@product.Beschrijving</p>
+								<p class="text-muted">@product.AllergenenInfo</p>
+							</div>
+							<div class="d-flex justify-content-between align-items-center mt-2">
+								<span class="fw-bold">@product.Prijs?.ToString("0.00") €</span>
+								@if (magBestellen)
+								{
+									<button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#myModal" data-item-name="@product.Naam" data-item-id="@product.Id">
+										Toevoegen
+									</button>
+								}
+							</div>
+						</div>
+					</div>
+				</div>
+			}
+		</div>
+		<hr>
+	}
+}
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content">
+
+			<div class="modal-header">
+				<h5 class="modal-title" id="myModalLabel">Bestel product</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+
+			<div class="modal-body">
+				<form id="modalForm" method="post" asp-controller="Bestelling" asp-action="Add">
+					@Html.AntiForgeryToken()
+					<div class="mb-3">
+						<label class="form-label">Aantal</label>
+						<input type="number" name="Aantal" class="form-control" min="1" value="1" required />
+					</div>
+
+					<input type="hidden" name="ProductId" />
+					<input type="hidden" name="ReservatieId" value="@(ViewBag.ReservatieId ?? 3)"/>
+					<input type="hidden" name="viewMode" value=1 />
+
+					<div class="mb-3">
+						<label class="form-label">Opmerking</label>
+						<input type="text" name="Opmerking" class="form-control" />
+					</div>
+
+					<div class="d-flex justify-content-end">
+						<button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Terug</button>
+						<button type="submit" class="btn btn-primary">Toevoegen</button>
+					</div>
+				</form>
+
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+	var myModal = document.getElementById('myModal');
+
+	myModal.addEventListener('show.bs.modal', function (event) {
+		var button = event.relatedTarget;
+		var itemName = button.getAttribute('data-item-name');
+		var itemId = button.getAttribute('data-item-id');
+
+		console.log("Item ID:", itemId);
+
+		var modalTitle = myModal.querySelector('.modal-title');
+		modalTitle.textContent = 'Bestel ' + itemName;
+
+		var hiddenProductField = myModal.querySelector('input[name="ProductId"]');
+		hiddenProductField.value = itemId;
+	})
+</script>

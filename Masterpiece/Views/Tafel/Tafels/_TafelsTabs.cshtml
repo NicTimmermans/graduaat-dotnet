@@ -1,0 +1,16 @@
+﻿@model TafelIndexViewModel
+@{
+    var sub = Model.ActiveSub ?? "Grondplan";
+}
+
+<div class="subnav mb-3">
+    <a asp-controller="Tafel" asp-action="TafelGrondplan"
+       class="subnav-item @(sub == "Grondplan" ? "active" : "")">
+        Grondplan
+    </a>
+
+    <a asp-controller="Tafel" asp-action="TafelOverzicht"
+       class="subnav-item @(sub == "Overzicht" ? "active" : "")">
+        Overzicht
+    </a>
+</div>

@@ -1,0 +1,106 @@
+﻿@model BestellingListViewModel
+@{
+    ViewData["Title"] = "Winkelkar";
+    decimal totaal = 0;
+    int viewMode = ViewBag.ViewMode;
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["Error"]
+    </div>
+}
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Success"]
+    </div>
+}
+
+<h2>Uw bestelling</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Product</th>
+            <th>Aantal</th>
+            @if (viewMode == 2)
+            {
+                <th>Status</th>
+            }
+            
+            <th>Totaal</th>
+            @if (viewMode == 1)
+            {
+                <th>Acties</th>
+            }
+            
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Bestellingen)
+        {
+            if (viewMode == 1)
+            {
+                if (item.StatusId == 5)
+                {
+                    <tr>
+                        <td>@item.ProductNaam</td>
+                        <td>
+                            <form asp-action="Update" method="post" class="d-flex">
+                                <input type="hidden" name="Id" value="@item.Id" />
+                                <input type="number" name="Aantal" value="@item.Aantal" min="1" class="form-control form-control-sm me-2" style="width:70px;" />
+                                <button type="submit" class="btn btn-primary btn-sm">Wijzigen</button>
+                                <input type="hidden" name="viewMode" value="@ViewBag.ViewMode" />
+                            </form>
+                        </td>
+                        <td>@item.LijnTotaal.ToString("0.00") €</td>
+                        <td>
+                            <form asp-action="Remove" method="post">
+                                <input type="hidden" name="id" value="@item.Id" />
+                                <button type="submit" class="btn btn-danger btn-sm">Verwijderen</button>
+                                <input type="hidden" name="viewMode" value="@ViewBag.ViewMode" />
+                            </form>
+                        </td>
+                    </tr>
+                    totaal += item.LijnTotaal;
+                }
+            }
+            else
+            {
+                <tr>
+                    <td>@item.ProductNaam</td>
+                    <td>
+                        @item.Aantal
+                    </td>
+                    <td>@item.StatusNaam</td>
+                    <td>@item.LijnTotaal.ToString("0.00") €</td>
+                </tr>
+                totaal += item.LijnTotaal;
+            } 
+        }
+    </tbody>
+</table>
+
+<h3>Totaal: @totaal.ToString("0.00") €</h3>
+
+<div class="d-flex justify-content-between mt-3">
+    <a href="@Url.Action("Index", "Menu", new { reservatieId = Model.ReservatieId, viewMode = ViewBag.ViewMode })"
+       class="btn btn-secondary">
+        Terug naar Menu
+    </a>
+
+
+    @if (viewMode == 1)
+    {
+        <form asp-action="Confirm" method="post">
+            <input type="hidden" name="reservatieId" value="@Model.ReservatieId" />
+            <button class="btn btn-success">Bevestig Bestelling</button>
+            <input type="hidden" name="viewMode" value="@ViewBag.ViewMode" />
+        </form>
+    }
+    
+</div>
+
+

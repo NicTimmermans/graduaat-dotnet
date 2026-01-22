@@ -1,0 +1,15 @@
+﻿@{
+    var activeMain = (ViewData["ActiveMain"] as string) ?? "Tafels";
+}
+
+<div class="btn-group mb-3" role="group" aria-label="Hoofdnavigatie tafels/reservaties">
+    <a asp-controller="Tafel" asp-action="TafelGrondplan"
+       class="btn btn-sm @(activeMain == "Tafels" ? "btn-primary" : "btn-outline-primary")">
+        Tafels
+    </a>
+
+    <a asp-controller="Tafel" asp-action="TafelToewijzenReservatie"
+       class="btn btn-sm @(activeMain == "Reservaties" ? "btn-primary" : "btn-outline-primary")">
+        Reservaties
+    </a>
+</div>
